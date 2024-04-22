@@ -1,0 +1,85 @@
+import * as dotenv from 'dotenv';
+import {
+  Repository,
+  createConnection,
+  getConnection,
+  getRepository,
+} from 'typeorm';
+import User from './user.entity';
+import { UserService } from './user.service';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('iconv-lite').encodingExists('foo');
+
+describe('UserService', () => {
+  let service: UserService;
+  let repository: Repository<User>;
+  beforeAll(() => {
+    dotenv.config();
+  });
+
+  beforeEach(async () => {
+    const connection = await createConnection({
+      type: 'sqlite',
+      database: ':memory:',
+      dropSchema: true,
+      entities: [User],
+      synchronize: true,
+      logging: false,
+      name: 'test-connection',
+    });
+    repository = getRepository(User, 'test-connection');
+    service = new UserService(repository);
+    return connection;
+  });
+
+  afterEach(async () => {
+    await getConnection('test-connection').close();
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+
+  it('should return an array of users', async () => {
+    expect(await service.findAll()).toBeInstanceOf(Array);
+  });
+
+  it('should create a new user and return it', async () => {
+    const user = await service.create({
+      firstName: 'John',
+      lastName: 'Doe',
+      address: '123 Main St',
+      email: 'johndoe@gmail.com',
+    });
+    expect(user).toHaveProperty('id');
+    const id = user.id;
+    expect(service.findOne(id)).resolves.toEqual(user);
+  });
+
+  it('should update a user and return it', async () => {
+    const user = await service.create({
+      firstName: 'John',
+      lastName: 'Doe',
+      address: '123 Main St',
+      email: 'messi123@gmail.com',
+    });
+    const id = user.id;
+    await service.update(id, {
+      firstName: 'Lionel',
+      lastName: 'Messi',
+      address: '456 Main St',
+    });
+    const foundUser = await service.findOne(id);
+    expect({
+      firstName: foundUser.firstName,
+      lastName: foundUser.lastName,
+      address: foundUser.address,
+      email: foundUser.email,
+    }).toEqual({
+      firstName: 'Lionel',
+      lastName: 'Messi',
+      address: '456 Main St',
+      email: 'messi123@gmail.com',
+    });
+  });
+});

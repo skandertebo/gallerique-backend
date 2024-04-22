@@ -6,6 +6,8 @@ import * as dotenv from 'dotenv';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import HelloWorldModule from './hello-world/hello-world.module';
+import User from './user/user.entity';
+import UserModule from './user/user.module';
 dotenv.config();
 @Module({
   imports: [
@@ -21,9 +23,10 @@ dotenv.config();
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [],
+      entities: [User],
       synchronize: true,
     }),
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
