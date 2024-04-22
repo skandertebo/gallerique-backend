@@ -10,7 +10,6 @@ export class UserService extends GenericService<User> {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {
-    console.log('User service created');
     super(userRepository);
   }
 }
