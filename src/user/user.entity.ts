@@ -23,6 +23,9 @@ export default class User extends GenericEntity {
   @Column({ default: UserStatus.UNVERIFIED, type: 'int' })
   status: UserStatus;
 
+  @Column()
+  password: string;
+
   @Column({ default: 0 })
   credit: number;
 }
