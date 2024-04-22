@@ -69,12 +69,12 @@ describe('UserService', () => {
       lastName: 'Messi',
       address: '456 Main St',
     });
-    const foundUser = await service.findOne(id);
+    const updatedUser = await service.findOne(id);
     expect({
-      firstName: foundUser.firstName,
-      lastName: foundUser.lastName,
-      address: foundUser.address,
-      email: foundUser.email,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      address: updatedUser.address,
+      email: updatedUser.email,
     }).toEqual({
       firstName: 'Lionel',
       lastName: 'Messi',
