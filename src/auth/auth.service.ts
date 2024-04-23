@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import CreateUserDto from '../user/dto/createUser.dto';
@@ -26,7 +30,7 @@ export class AuthService {
     throw new UnauthorizedException('Email is incorrect');
   }
 
-  async login(user: User) {
+  async login(user: Omit<User, 'password'>) {
     const payload = {
       email: user.email,
       sub: user.id,
@@ -39,6 +43,10 @@ export class AuthService {
   }
 
   async register(createUserDto: CreateUserDto) {
+    const existingUser = await this.userService.findOneByEmail(
+      createUserDto.email,
+    );
+    if (existingUser) throw new BadRequestException('User already exists');
     const hashedPassword = await this.hashPassword(createUserDto.password);
     const user = await this.userService.create({
       ...createUserDto,
