@@ -50,6 +50,7 @@ describe('UserService', () => {
       lastName: 'Doe',
       address: '123 Main St',
       email: 'johndoe@gmail.com',
+      password: '12345678',
     });
     expect(user).toHaveProperty('id');
     const id = user.id;
@@ -62,6 +63,7 @@ describe('UserService', () => {
       lastName: 'Doe',
       address: '123 Main St',
       email: 'messi123@gmail.com',
+      password: '12345678',
     });
     const id = user.id;
     await service.update(id, {
