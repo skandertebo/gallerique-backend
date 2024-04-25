@@ -1,0 +1,26 @@
+name: SSH Remote Commands
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Executing remote SSH commands
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22 # Default SSH port, change if needed
+          script: |
+            echo "Starting deployment..."
+            cd gallerique-backend
+            git pull
+            yarn
+            pm2 stop 6
+            yarn build
+            pm2 start 6
+            echo "Deployment completed."
