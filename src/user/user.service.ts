@@ -16,4 +16,12 @@ export class UserService extends GenericService<User> {
   async findOneByEmail(email: string): Promise<User> {
     return this.userRepository.findOne({ where: { email } });
   }
+
+  async getUserConversations(userId: number) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['conversations'],
+    });
+    return user.conversations;
+  }
 }
