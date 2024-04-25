@@ -6,6 +6,8 @@ import * as dotenv from 'dotenv';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { StripeModule } from './stripe/stripe.module';
+import { PaymentModule } from './payment/payment.module';
 import HelloWorldModule from './hello-world/hello-world.module';
 import User from './user/user.entity';
 import UserModule from './user/user.module';
@@ -29,6 +31,8 @@ dotenv.config();
     }),
     UserModule,
     AuthModule,
+    StripeModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
