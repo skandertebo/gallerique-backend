@@ -41,11 +41,11 @@ export class AuctionResolver {
 
   @Mutation(() => Auction)
   removeAuction(@Args('id', { type: () => Int }) id: number) {
-    // this.auctionService.findOne(id).then((auction) => {
-    //   auction.bids.forEach((bid) => {
-    //     this.bidService.delete(bid.id);
-    //   });
-    // });
+    this.auctionService.findOne(id).then((auction) => {
+      auction.bids.forEach((bid) => {
+        this.bidService.delete(bid.id);
+      });
+    });
     return this.auctionService.delete(id);
   }
 }
