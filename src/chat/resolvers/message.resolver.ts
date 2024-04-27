@@ -4,7 +4,7 @@ import Message from '../entities/message.entity';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
 import { GetUser } from 'src/auth/decorators/getUser.decorator';
-import User from 'src/user/user.entity';
+import User from '../../user/user.entity';
 import createMessageDTO from '../dto/createMessage.dto';
 
 @Resolver()

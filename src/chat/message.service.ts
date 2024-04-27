@@ -4,7 +4,7 @@ import Message from './entities/message.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConversationService } from './conversation.service';
-import User from 'src/user/user.entity';
+import User from '../user/user.entity';
 import createMessageDTO from './dto/createMessage.dto';
 
 @Injectable()

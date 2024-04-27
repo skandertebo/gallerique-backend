@@ -1,5 +1,5 @@
-import GenericEntity from 'src/generic/generic.entity';
-import User from 'src/user/user.entity';
+import GenericEntity from '../../generic/generic.entity';
+import User from '../../user/user.entity';
 import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import Message from './message.entity';
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
