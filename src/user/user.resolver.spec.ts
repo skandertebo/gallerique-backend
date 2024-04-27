@@ -16,6 +16,10 @@ describe('UserResolver', () => {
       lastName: 'Tebo',
       status: UserStatus.VERIFIED,
       password: '123456',
+      conversations: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
     };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
