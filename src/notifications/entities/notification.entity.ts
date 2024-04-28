@@ -14,7 +14,10 @@ export class Notification extends GenericEntity {
   content: string;
 
   @Field(() => [User], { nullable: true })
-  @ManyToMany(() => User, (user) => user.notifications, { eager: true })
+  @ManyToMany(() => User, (user) => user.notifications, {
+    eager: true,
+    cascade: true,
+  })
   @JoinTable()
   users: User[];
 

@@ -23,15 +23,15 @@ export default class NotificationsService extends GenericService<
   async createNotification(
     createNotificationInput: CreateNotificationInput,
   ): Promise<Notification> {
+    const users = await this.userService.findByIds(
+      createNotificationInput.userIds,
+    );
     const notification = this.notificationRepository.create({
       title: createNotificationInput.title,
       content: createNotificationInput.content,
       type: createNotificationInput.type,
+      users: users,
     });
-    const users = await this.userService.findByIds(
-      createNotificationInput.userIds,
-    );
-    notification.users = users;
     const createdNotification =
       await this.notificationRepository.save(notification);
     return createdNotification;

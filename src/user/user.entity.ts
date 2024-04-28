@@ -37,7 +37,6 @@ export default class User extends GenericEntity {
   conversations: Conversation[];
 
   @ManyToMany(() => Notification, (notification) => notification.users)
-  @JoinTable()
   @Field(() => [Notification], { nullable: true })
   notifications: Notification[];
 
