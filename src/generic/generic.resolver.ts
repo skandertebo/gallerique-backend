@@ -55,7 +55,7 @@ export function BaseResolver<
       return this.BaseService.update(id, updateInput);
     }
 
-    @Mutation(() => entity, { name: `remove${capitalize(entity.name)}` })
+    @Mutation(() => Boolean, { name: `remove${capitalize(entity.name)}` })
     remove(@Args('id', { type: () => Int }) id: number) {
       return this.BaseService.delete(id);
     }

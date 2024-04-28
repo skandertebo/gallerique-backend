@@ -39,11 +39,14 @@ export default class GenericService<
   }
 
   async update(id: number, data: UDTO): Promise<Entity> {
-    return this.repository.save({ ...data, id });
+    let entity = await this.findOne(id);
+    entity = this.repository.merge(entity, data);
+    return this.repository.save(entity);
   }
 
-  async delete(id: number) {
-    return this.repository.delete(id);
+  async delete(id: number): Promise<boolean> {
+    await this.repository.delete(id);
+    return true;
   }
 
   async findAll(): Promise<Entity[]> {
