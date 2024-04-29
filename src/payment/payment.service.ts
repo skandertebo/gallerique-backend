@@ -1,22 +1,18 @@
 import Stripe from 'stripe';
 import { StripeService } from './../stripe/stripe.service';
 import { Injectable } from '@nestjs/common';
+import { TopUpDto } from './dto/paymentdto';
 
 @Injectable()
 export class PaymentService {
   constructor(private readonly stripeService: StripeService) {}
-  async topUpWallet(
-    amount: number,
-    currency: string,
-    success_url: string,
-    cancel_url: string,
-  ): Promise<string> {
+  async topUpWallet(topupDto: TopUpDto): Promise<string> {
     try {
       const sessionId = await this.stripeService.createCheckoutSession(
-        amount,
-        currency,
-        success_url,
-        cancel_url,
+        topupDto.amount,
+        topupDto.currency,
+        topupDto.successUrl,
+        topupDto.cancelUrl,
       );
       return sessionId;
     } catch (error) {
@@ -31,5 +27,8 @@ export class PaymentService {
     } catch (error) {
       throw new Error(error.message);
     }
+  }
+  async completePayment(sessionId: string): Promise<any> {
+    return await this.retrieveCheckoutSession(sessionId);
   }
 }
