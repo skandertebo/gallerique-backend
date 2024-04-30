@@ -1,11 +1,11 @@
-import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { MessageService } from '../message.service';
-import Message from '../entities/message.entity';
 import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GetUser } from 'src/auth/decorators/getUser.decorator';
+import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
 import User from '../../user/user.entity';
 import createMessageDTO from '../dto/createMessage.dto';
+import Message from '../entities/message.entity';
+import { MessageService } from '../message.service';
 
 @Resolver()
 export class MessageResolver {
