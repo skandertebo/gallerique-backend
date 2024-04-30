@@ -5,6 +5,8 @@ import {
   getConnection,
   getRepository,
 } from 'typeorm';
+import Conversation from '../chat/entities/conversation.entity';
+import Message from '../chat/entities/message.entity';
 import User from './user.entity';
 import { UserService } from './user.service';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -22,7 +24,7 @@ describe('UserService', () => {
       type: 'sqlite',
       database: ':memory:',
       dropSchema: true,
-      entities: [User],
+      entities: [User, Conversation, Message],
       synchronize: true,
       logging: false,
       name: 'test-connection',
