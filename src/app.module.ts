@@ -13,6 +13,8 @@ import User from './user/user.entity';
 import UserModule from './user/user.module';
 import Message from './chat/entities/message.entity';
 import Conversation from './chat/entities/conversation.entity';
+import { ChatModule } from './chat/chat.module';
+import Payment from './payment/payment.entity';
 dotenv.config();
 @Module({
   imports: [
@@ -28,7 +30,7 @@ dotenv.config();
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Message, Conversation],
+      entities: [User, Message, Conversation, Payment],
       synchronize: true,
     }),
     UserModule,

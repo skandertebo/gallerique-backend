@@ -24,4 +24,12 @@ export class UserService extends GenericService<User> {
     });
     return user.conversations;
   }
+  async getUserById(userId: number) {
+    return this.userRepository.findOne({
+      where: { id: userId },
+    });
+  }
+  async updateUserCredit(userId: number, credit: number) {
+    return this.userRepository.update({ id: userId }, { credit });
+  }
 }
