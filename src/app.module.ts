@@ -13,6 +13,7 @@ import Message from './chat/entities/message.entity';
 import HelloWorldModule from './hello-world/hello-world.module';
 import User from './user/user.entity';
 import UserModule from './user/user.module';
+import { WebSocketManagerGateway } from './websocket-manager/websocket.gateway';
 dotenv.config();
 @Module({
   imports: [
@@ -41,6 +42,6 @@ dotenv.config();
     ChatModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, WebSocketManagerGateway],
 })
 export class AppModule {}
