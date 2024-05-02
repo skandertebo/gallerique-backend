@@ -4,7 +4,12 @@ import { Auction } from './entities/auction.entity';
 import { CreateAuctionInput } from './dto/create-auction.input';
 import { UpdateAuctionInput } from './dto/update-auction.input';
 import { BidService } from '../bid/bid.service';
+import { GetUser } from 'src/auth/decorators/getUser.decorator';
+import User from 'src/user/user.entity';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Resolver(() => Auction)
 export class AuctionResolver {
   constructor(
@@ -15,8 +20,13 @@ export class AuctionResolver {
   @Mutation(() => Auction)
   createAuction(
     @Args('createAuctionInput') createAuctionInput: CreateAuctionInput,
+    @GetUser() user: User,
   ) {
-    return this.auctionService.create(createAuctionInput);
+    const auction = {
+      ...createAuctionInput,
+      owner: user,
+    };
+    return this.auctionService.create(auction);
   }
 
   @Query(() => [Auction], { name: 'auctions' })

@@ -1,6 +1,9 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import GenericEntity from '../generic/generic.entity';
 import { Field, ObjectType } from '@nestjs/graphql';
+import Conversation from '../chat/entities/conversation.entity';
+import { Auction } from '../auction/entities/auction.entity';
+import { Bid } from '../bid/entities/bid.entity';
 
 export enum UserStatus {
   UNVERIFIED = 0,
@@ -9,6 +12,7 @@ export enum UserStatus {
 
 @ObjectType()
 @Entity()
+@ObjectType()
 export default class User extends GenericEntity {
   @Column()
   @Field()
@@ -30,11 +34,23 @@ export default class User extends GenericEntity {
   @Column({ default: UserStatus.UNVERIFIED, type: 'int' })
   status: UserStatus;
 
-  @Field()
+  @ManyToMany(() => Conversation, (conversation) => conversation.users)
+  @JoinTable()
+  @Field(() => [Conversation], { nullable: true })
+  conversations: Conversation[];
+
   @Column()
   password: string;
 
   @Field()
   @Column({ default: 0 })
   credit: number;
+
+  @Field(() => [Auction], { nullable: true })
+  @OneToMany(() => Auction, (auction) => auction.owner)
+  auctions: Auction[];
+
+  @Field(() => [Bid], { nullable: true })
+  @OneToMany(() => Bid, (bid) => bid.owner)
+  bids: Bid[];
 }

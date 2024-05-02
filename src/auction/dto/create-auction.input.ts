@@ -16,9 +16,6 @@ export class CreateAuctionInput {
   startPrice: number;
 
   @Field()
-  currentPrice: number;
-
-  @Field()
   startDate: string;
 
   @Field()

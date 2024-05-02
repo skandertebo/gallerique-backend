@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import GenericEntity from '../../generic/generic.entity';
-import { Column, CreateDateColumn, Entity } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToOne } from 'typeorm';
 import { Auction } from '../../auction/entities/auction.entity';
 import User from '../../user/user.entity';
 
@@ -15,11 +15,11 @@ export class Bid extends GenericEntity {
   @CreateDateColumn()
   createdAt!: Date;
 
-  @Field()
-  @Column()
+  @Field(() => Auction)
+  @ManyToOne(() => Auction, (auction) => auction.bids)
   auction!: Auction;
 
-  @Field()
-  @Column()
+  @Field(() => User)
+  @ManyToOne(() => User, (user) => user.bids)
   owner!: User;
 }
