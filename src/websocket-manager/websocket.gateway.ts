@@ -1,4 +1,3 @@
-import { JwtService } from '@nestjs/jwt';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -8,7 +7,8 @@ import {
 } from '@nestjs/websockets';
 import { Subscription, filter } from 'rxjs';
 import { Server, Socket } from 'socket.io';
-import { ConversationService } from 'src/chat/conversation.service';
+import { AuthService } from 'src/auth/auth.service';
+import { MessageService } from 'src/chat/message.service';
 import { UserService } from 'src/user/user.service';
 
 interface WebsocketClient {
@@ -24,8 +24,8 @@ export class WebSocketManagerGateway
   server: Server;
 
   constructor(
-    private readonly conversationService: ConversationService,
-    private readonly jwtService: JwtService,
+    private readonly messageService: MessageService,
+    private readonly authService: AuthService,
     private readonly userService: UserService,
   ) {}
 
@@ -33,10 +33,11 @@ export class WebSocketManagerGateway
 
   async handleConnection(client: Socket) {
     const userId = 1; // Assuming you have a way to get the user ID
-    const subscription = this.conversationService.observable
+    const subscription = this.messageService.observable
       .pipe(
         filter(
-          (message) => !!message.payload.users.find((u) => u.id == userId),
+          (message) =>
+            !!message.payload.conversation.users.find((u) => u.id == userId),
         ),
       )
       .subscribe((message) => {
@@ -47,7 +48,7 @@ export class WebSocketManagerGateway
       client.disconnect();
     }
     try {
-      const res = await this.jwtService.verifyAsync(authToken);
+      const res = await this.authService.validateToken(authToken);
       if (!res) {
         client.disconnect();
         return;
