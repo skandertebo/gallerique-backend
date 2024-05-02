@@ -59,6 +59,10 @@ export class AuthService {
     return await bcrypt.hash(password, 10);
   }
 
+  async validateToken(token: string) {
+    return await this.jwtService.verifyAsync(token);
+  }
+
   async localPasswordValidation(
     plainTextPassword: string,
     hashedPassword: string,

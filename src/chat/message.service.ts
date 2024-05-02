@@ -15,6 +15,7 @@ export class MessageService extends GenericService<Message> {
     private readonly conversationService: ConversationService,
   ) {
     super(messageRepository);
+    this.scope = 'message';
   }
   async getByConversation(
     conversationId: number,
