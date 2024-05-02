@@ -17,6 +17,8 @@ describe('UserResolver', () => {
       status: UserStatus.VERIFIED,
       password: '123456',
       conversations: null,
+      auctions: null,
+      bids: null,
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,

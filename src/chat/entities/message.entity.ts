@@ -1,9 +1,9 @@
+import { Field, ObjectType } from '@nestjs/graphql';
 import { Length } from 'class-validator';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import GenericEntity from '../../generic/generic.entity';
 import User from '../../user/user.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
 import Conversation from './conversation.entity';
-import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 @Entity()

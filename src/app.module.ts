@@ -1,4 +1,5 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { AzureStorageModule } from '@nestjs/azure-storage';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -7,11 +8,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ChatModule } from './chat/chat.module';
+import Conversation from './chat/entities/conversation.entity';
+import Message from './chat/entities/message.entity';
 import HelloWorldModule from './hello-world/hello-world.module';
 import User from './user/user.entity';
 import UserModule from './user/user.module';
-import Message from './chat/entities/message.entity';
-import Conversation from './chat/entities/conversation.entity';
 import { BidModule } from './bid/bid.module';
 import { AuctionModule } from './auction/auction.module';
 import { Bid } from './bid/entities/bid.entity';
@@ -33,6 +34,11 @@ dotenv.config();
       database: process.env.DB_NAME,
       entities: [User, Message, Conversation, Bid, Auction],
       synchronize: true,
+    }),
+    AzureStorageModule.withConfig({
+      sasKey: process.env.AZURE_STORAGE_SAS_KEY,
+      accountName: process.env.AZURE_STORAGE_ACCOUNT_NAME,
+      containerName: process.env.AZURE_STORAGE_CONTAINER_NAME,
     }),
     UserModule,
     AuthModule,

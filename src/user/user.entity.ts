@@ -1,7 +1,7 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
-import GenericEntity from '../generic/generic.entity';
 import { Field, ObjectType } from '@nestjs/graphql';
+import { Column, Entity, OneToMany, JoinTable, ManyToMany } from 'typeorm';
 import Conversation from '../chat/entities/conversation.entity';
+import GenericEntity from '../generic/generic.entity';
 import { Auction } from '../auction/entities/auction.entity';
 import { Bid } from '../bid/entities/bid.entity';
 
@@ -20,18 +20,22 @@ export default class User extends GenericEntity {
 
   @Field()
   @Column()
+  @Field()
   lastName: string;
 
   @Field()
   @Column()
+  @Field()
   email: string;
 
   @Field()
   @Column()
+  @Field()
   address: string;
 
   @Field()
   @Column({ default: UserStatus.UNVERIFIED, type: 'int' })
+  @Field()
   status: UserStatus;
 
   @ManyToMany(() => Conversation, (conversation) => conversation.users)

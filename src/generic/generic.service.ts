@@ -70,8 +70,4 @@ export default class GenericService<
       .getMany();
     return results;
   }
-
-  async save(entity: Entity): Promise<Entity> {
-    return this.repository.save(entity);
-  }
 }
