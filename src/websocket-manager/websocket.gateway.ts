@@ -16,7 +16,7 @@ interface WebsocketClient {
   userId: number;
   observableSubscriptions: Subscription[];
 }
-@WebSocketGateway(1235, { namespace: 'websocket' })
+@WebSocketGateway({ namespace: 'websocket' })
 export class WebSocketManagerGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
