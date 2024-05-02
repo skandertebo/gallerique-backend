@@ -31,7 +31,7 @@ export class WebSocketManagerGateway
 
   private clients: Set<WebsocketClient> = new Set();
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     const userId = 1; // Assuming you have a way to get the user ID
     const subscription = this.conversationService.observable
       .pipe(
@@ -42,32 +42,29 @@ export class WebSocketManagerGateway
       .subscribe((message) => {
         client.emit('message', message);
       });
-
-    client.on('message', async (message) => {
-      const authToken = message.authToken;
-      if (!authToken) {
+    const authToken = client.handshake.headers.authorization;
+    if (!authToken) {
+      client.disconnect();
+    }
+    try {
+      const res = await this.jwtService.verifyAsync(authToken);
+      if (!res) {
         client.disconnect();
+        return;
       }
-      try {
-        const res = await this.jwtService.verifyAsync(authToken);
-        if (!res) {
-          client.disconnect();
-          return;
-        }
-        const user = await this.userService.findOne(res.sub);
-        if (!user) {
-          client.disconnect();
-          return;
-        }
-        this.clients.add({
-          socket: client,
-          userId: user.id,
-          observableSubscriptions: [subscription],
-        });
-      } catch (e) {
+      const user = await this.userService.findOne(res.sub);
+      if (!user) {
         client.disconnect();
+        return;
       }
-    });
+      this.clients.add({
+        socket: client,
+        userId: user.id,
+        observableSubscriptions: [subscription],
+      });
+    } catch (e) {
+      client.disconnect();
+    }
   }
 
   @SubscribeMessage('message')
