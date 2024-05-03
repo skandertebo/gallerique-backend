@@ -36,4 +36,17 @@ export default class NotificationsService extends GenericService<
       await this.notificationRepository.save(notification);
     return createdNotification;
   }
+
+  async findNotificationsByUser(
+    userId: number,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<Notification[]> {
+    const queryBuilder = this.notificationRepository
+      .createQueryBuilder('notification')
+      .innerJoin('notification.users', 'user', 'user.id = :userId', { userId })
+      .orderBy('notification.createdAt', 'DESC');
+
+    return this.paginate(queryBuilder, page, limit);
+  }
 }

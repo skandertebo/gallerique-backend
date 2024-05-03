@@ -1,4 +1,4 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Resolver, Query, Int } from '@nestjs/graphql';
 import { Notification } from './entities/notification.entity';
 import NotificationsService from './notifications.service';
 import { BaseResolver } from '../generic/generic.resolver';
@@ -15,13 +15,16 @@ export class NotificationsResolver extends BaseResolver(
     super(notificationsService);
   }
 
-  @Mutation(() => Notification)
-  async createNotification(
-    @Args('createNotificationInput')
-    createNotificationInput: CreateNotificationInput,
-  ) {
-    return this.notificationsService.createNotification(
-      createNotificationInput,
+  @Query(() => [Notification], { name: 'getNotificationsByUser' })
+  async getNotificationsByUser(
+    @Args('userId') userId: number,
+    @Args('limit', { type: () => Int, defaultValue: 10 }) limit: number,
+    @Args('page', { type: () => Int, defaultValue: 1 }) page: number,
+  ): Promise<Notification[]> {
+    return this.notificationsService.findNotificationsByUser(
+      userId,
+      page,
+      limit,
     );
   }
 }

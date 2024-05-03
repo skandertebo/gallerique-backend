@@ -3,6 +3,7 @@ import { Resolver, Args, Int, Mutation, Query } from '@nestjs/graphql';
 import { DeepPartial } from 'typeorm';
 import GenericService from './generic.service';
 import GenericEntity from './generic.entity';
+import { capitalize } from '../helpers/capitalize';
 
 export function BaseResolver<
   T extends Type<GenericEntity> & GenericEntity,
@@ -12,8 +13,8 @@ export function BaseResolver<
   @Resolver({ isAbstract: true })
   @Injectable()
   class BaseResolverHost {
-    constructor(private readonly BaseService: GenericService<T, C, U>) {
-      this.BaseService = BaseService;
+    constructor(private readonly baseService: GenericService<T, C, U>) {
+      this.baseService = baseService;
     }
 
     @Query(() => [entity], {
@@ -21,7 +22,7 @@ export function BaseResolver<
       nullable: true,
     })
     findAll() {
-      return this.BaseService.findAll();
+      return this.baseService.findAll();
     }
 
     @Query(() => entity, {
@@ -29,7 +30,7 @@ export function BaseResolver<
       nullable: true,
     })
     findOne(@Args('id', { type: () => Int }) id: number) {
-      return this.BaseService.findOne(id);
+      return this.baseService.findOne(id);
     }
     @Mutation(() => entity, { name: `create${capitalize(entity.name)}` })
     create(
@@ -39,7 +40,7 @@ export function BaseResolver<
       })
       createInput: C,
     ): Promise<T | boolean> {
-      return this.BaseService.create(createInput);
+      return this.baseService.create(createInput);
     }
 
     @Mutation(() => entity, { name: `update${capitalize(entity.name)}` })
@@ -52,16 +53,13 @@ export function BaseResolver<
       @Args('id', { type: () => Int })
       id: number,
     ) {
-      return this.BaseService.update(id, updateInput);
+      return this.baseService.update(id, updateInput);
     }
 
     @Mutation(() => Boolean, { name: `remove${capitalize(entity.name)}` })
     remove(@Args('id', { type: () => Int }) id: number) {
-      return this.BaseService.delete(id);
+      return this.baseService.delete(id);
     }
   }
   return BaseResolverHost;
-}
-function capitalize(name: string) {
-  return name.charAt(0).toUpperCase() + name.slice(1);
 }
