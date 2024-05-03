@@ -32,17 +32,6 @@ export class WebSocketManagerGateway
   private clients: Set<WebsocketClient> = new Set();
 
   async handleConnection(client: Socket) {
-    const userId = 1; // Assuming you have a way to get the user ID
-    const subscription = this.messageService.observable
-      .pipe(
-        filter(
-          (message) =>
-            !!message.payload.conversation.users.find((u) => u.id == userId),
-        ),
-      )
-      .subscribe((message) => {
-        client.emit('message', message);
-      });
     const authToken = client.handshake.headers.authorization;
     if (!authToken) {
       client.disconnect();
@@ -58,6 +47,16 @@ export class WebSocketManagerGateway
         client.disconnect();
         return;
       }
+      const subscription = this.messageService.observable
+        .pipe(
+          filter(
+            (message) =>
+              !!message.payload.conversation.users.find((u) => u.id == user.id),
+          ),
+        )
+        .subscribe((message) => {
+          client.emit('message', message);
+        });
       this.clients.add({
         socket: client,
         userId: user.id,
