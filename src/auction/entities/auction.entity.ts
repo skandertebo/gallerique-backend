@@ -1,5 +1,5 @@
 import { ObjectType, Field } from '@nestjs/graphql';
-import { Bid } from '../../bid/entities/bid.entity';
+import { Bid } from './bid.entity';
 import GenericEntity from '../../generic/generic.entity';
 import User from '../../user/user.entity';
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
@@ -18,7 +18,7 @@ export class Auction extends GenericEntity {
 
   @Field()
   @Column()
-  picture!: string;
+  picture: string;
 
   @Field()
   @Column()
@@ -45,10 +45,14 @@ export class Auction extends GenericEntity {
   status!: AuctionStatus;
 
   @Field(() => [Bid])
-  @OneToMany(() => Bid, (bid) => bid.auction)
+  @OneToMany(() => Bid, (bid) => bid.auction, { onDelete: 'CASCADE' })
   bids!: Bid[];
 
   @Field(() => User)
   @ManyToOne(() => User, (user) => user.auctions)
   owner!: User;
+
+  @Field(() => User)
+  @ManyToOne(() => User)
+  winner: User;
 }

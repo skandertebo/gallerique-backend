@@ -10,7 +10,7 @@ import Message from '../chat/entities/message.entity';
 import User from './user.entity';
 import { UserService } from './user.service';
 import { Auction } from '../auction/entities/auction.entity';
-import { Bid } from '../bid/entities/bid.entity';
+import { Bid } from '../auction/entities/bid.entity';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('iconv-lite').encodingExists('foo');
 
