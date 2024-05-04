@@ -13,6 +13,7 @@ import Message from './chat/entities/message.entity';
 import HelloWorldModule from './hello-world/hello-world.module';
 import User from './user/user.entity';
 import UserModule from './user/user.module';
+import { WebSocketManagerGateway } from './websocket-manager/websocket.gateway';
 import { AuctionModule } from './auction/auction.module';
 import { Bid } from './auction/entities/bid.entity';
 import { Auction } from './auction/entities/auction.entity';
@@ -45,6 +46,6 @@ dotenv.config();
     AuctionModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, WebSocketManagerGateway],
 })
 export class AppModule {}
