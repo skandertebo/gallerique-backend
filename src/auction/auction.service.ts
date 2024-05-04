@@ -15,4 +15,12 @@ export class AuctionService extends GenericService<Auction> {
   ) {
     super(auctionRepository);
   }
+
+  async addBid(auctionId: number, bidId: number) {
+    const auction = await this.findById(auctionId);
+    const bid = await this.bidService.findById(bidId);
+
+    auction.bids.push(bid);
+    return this.auctionRepository.save(auction);
+  }
 }

@@ -22,9 +22,6 @@ export class BidResolver {
         owner: user,
         createdAt: new Date(),
       };
-      // add bid to the auction bids
-      // update the auction current price
-      // update the user credit
 
       return this.bidService.create(bid);
     }
