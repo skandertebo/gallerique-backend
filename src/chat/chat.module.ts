@@ -16,6 +16,11 @@ import { MessageResolver } from './resolvers/message.resolver';
     MessageResolver,
     ConversationResolver,
   ],
-  exports: [],
+  exports: [
+    ConversationService,
+    MessageService,
+    MessageResolver,
+    ConversationResolver,
+  ],
 })
 export class ChatModule {}
