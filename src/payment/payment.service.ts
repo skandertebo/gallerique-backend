@@ -1,10 +1,10 @@
 import Stripe from 'stripe';
 import { StripeService } from './../stripe/stripe.service';
 import { HttpException, Injectable } from '@nestjs/common';
-import { TopUpDto } from './dto/paymentdto';
+import { TopUpDto } from './dto/paymentDto';
 import { InjectRepository } from '@nestjs/typeorm';
 import Payment, { PaymentStatus } from './payment.entity';
-import { Repository } from 'typeorm';
+import { EntityNotFoundError, Repository } from 'typeorm';
 import User from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 
@@ -23,17 +23,17 @@ export class PaymentService {
 
   async topUpWallet(topupDto: TopUpDto, user: User): Promise<string> {
     try {
-      const sessionId = await this.stripeService.createCheckoutSession(
+      const session = await this.stripeService.createCheckoutSession(
         topupDto.amount,
-        topupDto.currency,
+        process.env.STRIPE_CURRENCY,
       );
       await this.paymentRepository.save({
-        sessionId: sessionId,
+        sessionId: session.id,
         user: user,
         amount: topupDto.amount,
         status: PaymentStatus.PENDING,
       });
-      return sessionId;
+      return session.url;
     } catch (error) {
       throw new Error(error.message);
     }
@@ -53,7 +53,7 @@ export class PaymentService {
       relations: ['user'],
     });
     if (!paymentObject) {
-      throw new Error('Payment not found');
+      throw new EntityNotFoundError(Payment, sessionId);
     }
     const user = paymentObject.user;
     await this.userService.updateUserCredit(
@@ -76,7 +76,7 @@ export class PaymentService {
       relations: ['user'],
     });
     if (!paymentObject) {
-      throw new Error('Payment not found');
+      throw new EntityNotFoundError(Payment, sessionId);
     }
     await this.paymentRepository.update(
       { id: paymentObject.id },

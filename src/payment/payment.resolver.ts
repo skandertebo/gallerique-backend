@@ -5,7 +5,7 @@ import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
 import { GetUser } from 'src/auth/decorators/getUser.decorator';
 import User from 'src/user/user.entity';
-import { TopUpDto } from './dto/paymentdto';
+import { TopUpDto } from './dto/paymentDto';
 
 @Resolver()
 export class PaymentResolver {
@@ -23,7 +23,10 @@ export class PaymentResolver {
     @Args('paymentInput') paymentInput: TopUpDto,
     @GetUser() user: User,
   ) {
-    const sessionId = await this.paymentService.topUpWallet(paymentInput, user);
-    return sessionId;
+    const sessionUrl = await this.paymentService.topUpWallet(
+      paymentInput,
+      user,
+    );
+    return sessionUrl;
   }
 }

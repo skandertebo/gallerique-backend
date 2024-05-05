@@ -16,10 +16,7 @@ export class StripeService {
     });
     this.webHookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   }
-  async createCheckoutSession(
-    amount: number,
-    currency: string,
-  ): Promise<string> {
+  async createCheckoutSession(amount: number, currency: string) {
     try {
       const session = await this.stripeClient.checkout.sessions.create({
         payment_method_types: ['card', 'ideal'],
@@ -39,7 +36,7 @@ export class StripeService {
         success_url: process.env.STRIPE_SUCCESS_URL,
         cancel_url: process.env.STRIPE_CANCEL_URL,
       });
-      return session.id;
+      return session;
     } catch (error) {
       throw new Error(error.message);
     }
