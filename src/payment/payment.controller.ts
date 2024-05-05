@@ -1,52 +1,26 @@
-import {
-  Body,
-  Controller,
-  Post,
-  UseGuards,
-  RawBodyRequest,
-  Req,
-  Res,
-} from '@nestjs/common';
+import { Controller, Post, Req, Res, Headers } from '@nestjs/common';
 import { PaymentService } from './payment.service';
-import { TopUpDto } from './dto/paymentdto';
-import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
-import { GetUser } from 'src/auth/decorators/getUser.decorator';
-import User from 'src/user/user.entity';
-import { StripeService } from 'src/stripe/stripe.service';
+import { RequestWithRawBody } from './interfaces/requestWithRawBody.interface';
 
 @Controller('payment')
 export class PaymentController {
-  constructor(
-    private readonly paymentService: PaymentService,
-    private readonly stripeService: StripeService,
-  ) {}
-
-  @Post('topup')
-  @UseGuards(JwtAuthGuard)
-  async topUpWallet(@Body() topUpDto: TopUpDto, @GetUser() user: User) {
-    try {
-      const sessionId = await this.paymentService.topUpWallet(topUpDto, user);
-      return sessionId;
-    } catch (error) {
-      return {
-        status: '400',
-        message: error.message,
-      };
-    }
-  }
+  constructor(private readonly paymentService: PaymentService) {}
 
   @Post('webhook')
-  async handleStripeEvents(@Req() req: RawBodyRequest<Request>, @Res() res) {
+  async handleStripeEvents(
+    @Headers('stripe-signature') signature,
+    @Req() req: RequestWithRawBody,
+    @Res() res: any,
+  ) {
     try {
-      const event = await this.stripeService.constructEvent(req);
-      if (event.type === 'checkout.session.completed') {
-        const session = event.data.object;
-        //todo check if the payment is successful
-        await this.paymentService.completePayment(session.id);
-      }
-      res.status(200).json({ received: true });
+      const event = await this.paymentService.handleSignature(
+        signature,
+        req.rawBody,
+      );
+      await this.paymentService.handleStripeWebhook(event);
+      res.sendStatus(200);
     } catch (error) {
-      res.status(400).json({ received: false });
+      res.sendStatus(400);
     }
   }
 }

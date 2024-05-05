@@ -19,8 +19,6 @@ export class StripeService {
   async createCheckoutSession(
     amount: number,
     currency: string,
-    success_url: string,
-    cancel_url: string,
   ): Promise<string> {
     try {
       const session = await this.stripeClient.checkout.sessions.create({
@@ -38,8 +36,8 @@ export class StripeService {
           },
         ],
         mode: 'payment',
-        success_url,
-        cancel_url,
+        success_url: process.env.STRIPE_SUCCESS_URL,
+        cancel_url: process.env.STRIPE_CANCEL_URL,
       });
       return session.id;
     } catch (error) {
@@ -55,18 +53,17 @@ export class StripeService {
       throw new Error(error.message);
     }
   }
-  async constructEvent(req: any): Promise<Stripe.Event> {
+  handleSignature(signature: string, payload: Buffer) {
     try {
-      const payload = req.body;
-      const sig = req.headers['stripe-signature'];
-      return this.stripeClient.webhooks.constructEvent(
+      const event = this.stripeClient.webhooks.constructEvent(
         payload,
-        sig,
+        signature,
         this.webHookSecret,
       );
+      return event;
     } catch (error) {
       throw new UnauthorizedException(
-        'Webhook signature verification failed',
+        'Webhook signature verification failed:',
         error.message,
       );
     }

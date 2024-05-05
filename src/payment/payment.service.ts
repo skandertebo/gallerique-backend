@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import { StripeService } from './../stripe/stripe.service';
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { TopUpDto } from './dto/paymentdto';
 import { InjectRepository } from '@nestjs/typeorm';
 import Payment, { PaymentStatus } from './payment.entity';
@@ -16,18 +16,20 @@ export class PaymentService {
     private readonly stripeService: StripeService,
     private readonly userService: UserService,
   ) {}
+  async getAllPayments(): Promise<Payment[]> {
+    const payments = await this.paymentRepository.find({ relations: ['user'] });
+    return payments;
+  }
 
   async topUpWallet(topupDto: TopUpDto, user: User): Promise<string> {
     try {
       const sessionId = await this.stripeService.createCheckoutSession(
         topupDto.amount,
         topupDto.currency,
-        topupDto.successUrl,
-        topupDto.cancelUrl,
       );
       await this.paymentRepository.save({
-        sessionId,
-        userId: user.id,
+        sessionId: sessionId,
+        user: user,
         amount: topupDto.amount,
         status: PaymentStatus.PENDING,
       });
@@ -45,28 +47,63 @@ export class PaymentService {
       throw new Error(error.message);
     }
   }
-  async completePayment(sessionId: string): Promise<any> {
+  async handlePaymentSucceeded(sessionId: string) {
     const paymentObject = await this.paymentRepository.findOne({
-      where: { sessionId },
+      where: { sessionId: sessionId },
+      relations: ['user'],
     });
     if (!paymentObject) {
       throw new Error('Payment not found');
     }
-    const user = await this.userService.getUserById(paymentObject.userId);
-    if (!user) {
-      throw new Error('User not found');
-    }
+    const user = paymentObject.user;
     await this.userService.updateUserCredit(
-      paymentObject.userId,
+      paymentObject.user.id,
       user.credit + paymentObject.amount,
     );
     await this.paymentRepository.update(
       { id: paymentObject.id },
       { status: PaymentStatus.SUCCESS },
     );
+    //todo notify user of successful payment
     return {
-      userId: paymentObject.userId,
+      userId: paymentObject.user,
       message: 'Payment successful',
     };
+  }
+  async handlePaymentFailed(sessionId: string) {
+    const paymentObject = await this.paymentRepository.findOne({
+      where: { sessionId: sessionId },
+      relations: ['user'],
+    });
+    if (!paymentObject) {
+      throw new Error('Payment not found');
+    }
+    await this.paymentRepository.update(
+      { id: paymentObject.id },
+      { status: PaymentStatus.FAILED },
+    );
+    //todo notify user of failed payment
+  }
+  handleSignature(signature: string, payload: Buffer) {
+    try {
+      return this.stripeService.handleSignature(signature, payload);
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+  async handleStripeWebhook(event: Stripe.Event) {
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as Stripe.Checkout.Session;
+      if (session.payment_status === 'paid') {
+        await this.handlePaymentSucceeded(session.id);
+      } else {
+        await this.handlePaymentFailed(session.id);
+      }
+    } else if (event.type === 'checkout.session.expired') {
+      const session = event.data.object as Stripe.Checkout.Session;
+      await this.handlePaymentFailed(session.id);
+    } else {
+      throw new HttpException('Invalid event type', 500);
+    }
   }
 }

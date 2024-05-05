@@ -1,7 +1,8 @@
-import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import GenericEntity from '../generic/generic.entity';
 import { Field, ObjectType } from '@nestjs/graphql';
 import Conversation from 'src/chat/entities/conversation.entity';
+import Payment from 'src/payment/payment.entity';
 
 export enum UserStatus {
   UNVERIFIED,
@@ -41,4 +42,8 @@ export default class User extends GenericEntity {
 
   @Column({ default: 0 })
   credit: number;
+
+  @OneToMany(() => Payment, (payment) => payment.user)
+  @Field(() => [Payment], { nullable: true })
+  payments: Payment[];
 }

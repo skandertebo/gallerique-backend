@@ -15,6 +15,7 @@ import Message from './chat/entities/message.entity';
 import Conversation from './chat/entities/conversation.entity';
 import { ChatModule } from './chat/chat.module';
 import Payment from './payment/payment.entity';
+import { ConfigModule } from '@nestjs/config';
 dotenv.config();
 @Module({
   imports: [
@@ -38,6 +39,7 @@ dotenv.config();
     ChatModule,
     StripeModule,
     PaymentModule,
+    ConfigModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],

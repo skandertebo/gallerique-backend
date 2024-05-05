@@ -1,6 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import GenericEntity from 'src/generic/generic.entity';
-import { Column, Entity } from 'typeorm';
+import User from 'src/user/user.entity';
+import { Column, Entity, ManyToOne } from 'typeorm';
 
 export enum PaymentStatus {
   PENDING,
@@ -15,9 +16,9 @@ export default class Payment extends GenericEntity {
   @Field()
   sessionId: string;
 
-  @Column()
-  @Field()
-  userId: number;
+  @ManyToOne(() => User)
+  @Field(() => User)
+  user: User;
 
   @Column()
   @Field()
