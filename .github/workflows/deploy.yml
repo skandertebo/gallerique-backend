@@ -27,7 +27,7 @@ jobs:
             cd gallerique-backend
             git pull
             yarn
-            pm2 stop 6
+            pm2 stop 4
             yarn build
-            pm2 start 6
+            pm2 start 4
             echo "Deployment completed."
