@@ -5,7 +5,7 @@ import { UserService } from 'src/user/user.service';
 import Stripe from 'stripe';
 import { EntityNotFoundError, Repository } from 'typeorm';
 import { StripeService } from './../stripe/stripe.service';
-import { TopUpDto } from './dto/miste.dto';
+import { TopUpDto } from './dto/paymentDto.dto';
 import Payment, { PaymentStatus } from './payment.entity';
 
 @Injectable()
