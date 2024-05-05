@@ -24,6 +24,9 @@ export class UserService extends GenericService<User> {
     });
     return user.conversations;
   }
+  async updateUserCredit(userId: number, credit: number) {
+    return this.userRepository.update({ id: userId }, { credit });
+  }
 
   async getUserNotifications(userId: number) {
     const user = await this.userRepository.findOne({
