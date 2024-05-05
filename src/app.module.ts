@@ -1,23 +1,23 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AzureStorageModule } from '@nestjs/azure-storage';
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { StripeModule } from './stripe/stripe.module';
-import { PaymentModule } from './payment/payment.module';
+import { ChatModule } from './chat/chat.module';
 import Conversation from './chat/entities/conversation.entity';
 import Message from './chat/entities/message.entity';
 import HelloWorldModule from './hello-world/hello-world.module';
+import Payment from './payment/payment.entity';
+import { PaymentModule } from './payment/payment.module';
+import { StripeModule } from './stripe/stripe.module';
 import User from './user/user.entity';
 import UserModule from './user/user.module';
 import { WebSocketManagerGateway } from './websocket-manager/websocket.gateway';
-import { ChatModule } from './chat/chat.module';
-import Payment from './payment/payment.entity';
-import { ConfigModule } from '@nestjs/config';
 dotenv.config();
 @Module({
   imports: [

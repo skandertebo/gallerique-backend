@@ -1,9 +1,8 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
-import GenericEntity from '../generic/generic.entity';
 import { Field, ObjectType } from '@nestjs/graphql';
-import Conversation from 'src/chat/entities/conversation.entity';
-import Payment from 'src/payment/payment.entity';
-
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
+import Conversation from '../chat/entities/conversation.entity';
+import GenericEntity from '../generic/generic.entity';
+import Payment from '../payment/payment.entity';
 export enum UserStatus {
   UNVERIFIED,
   VERIFIED,
