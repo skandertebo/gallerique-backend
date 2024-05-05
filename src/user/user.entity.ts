@@ -2,7 +2,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
 import Conversation from '../chat/entities/conversation.entity';
 import GenericEntity from '../generic/generic.entity';
-
+import { Notification } from '../notifications/entities/notification.entity';
 export enum UserStatus {
   UNVERIFIED,
   VERIFIED,
@@ -35,6 +35,10 @@ export default class User extends GenericEntity {
   @JoinTable()
   @Field(() => [Conversation], { nullable: true })
   conversations: Conversation[];
+
+  @ManyToMany(() => Notification, (notification) => notification.users)
+  @Field(() => [Notification], { nullable: true })
+  notifications: Notification[];
 
   @Column()
   password: string;

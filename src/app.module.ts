@@ -11,6 +11,8 @@ import { ChatModule } from './chat/chat.module';
 import Conversation from './chat/entities/conversation.entity';
 import Message from './chat/entities/message.entity';
 import HelloWorldModule from './hello-world/hello-world.module';
+import { Notification } from './notifications/entities/notification.entity';
+import { NotificationsModule } from './notifications/notifications.module';
 import User from './user/user.entity';
 import UserModule from './user/user.module';
 import { WebSocketManagerGateway } from './websocket-manager/websocket.gateway';
@@ -21,6 +23,7 @@ dotenv.config();
     GraphQLModule.forRoot<ApolloDriverConfig>({
       autoSchemaFile: true,
       driver: ApolloDriver,
+      playground: true,
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -29,7 +32,7 @@ dotenv.config();
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Message, Conversation],
+      entities: [User, Notification, Message, Conversation],
       synchronize: true,
     }),
     AzureStorageModule.withConfig({
@@ -39,6 +42,7 @@ dotenv.config();
     }),
     UserModule,
     AuthModule,
+    NotificationsModule,
     ChatModule,
   ],
   controllers: [AppController],

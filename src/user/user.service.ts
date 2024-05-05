@@ -24,4 +24,19 @@ export class UserService extends GenericService<User> {
     });
     return user.conversations;
   }
+
+  async getUserNotifications(userId: number) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['notifications'],
+    });
+    return user.notifications;
+  }
+
+  async updateUsersNotifications(users: User[], notification) {
+    users.forEach(async (user) => {
+      user.notifications.push(notification);
+      await this.userRepository.save(user);
+    });
+  }
 }
