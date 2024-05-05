@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import GenericService from 'src/generic/generic.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import GenericService from '../generic/generic.service';
+import User from '../user/user.entity';
 import Conversation, { ConversationType } from './entities/conversation.entity';
-import User from 'src/user/user.entity';
 
 @Injectable()
 export class ConversationService extends GenericService<Conversation> {

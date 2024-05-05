@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import Message from './entities/message.entity';
-import Conversation from './entities/conversation.entity';
+import UserModule from '../user/user.module';
 import { ConversationService } from './conversation.service';
+import Conversation from './entities/conversation.entity';
+import Message from './entities/message.entity';
 import { MessageService } from './message.service';
-import { MessageResolver } from './resolvers/message.resolver';
 import { ConversationResolver } from './resolvers/conversation.resolver';
-import UserModule from 'src/user/user.module';
+import { MessageResolver } from './resolvers/message.resolver';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Message, Conversation]), UserModule],
@@ -16,6 +16,11 @@ import UserModule from 'src/user/user.module';
     MessageResolver,
     ConversationResolver,
   ],
-  exports: [],
+  exports: [
+    ConversationService,
+    MessageService,
+    MessageResolver,
+    ConversationResolver,
+  ],
 })
 export class ChatModule {}

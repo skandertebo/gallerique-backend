@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import GenericService from 'src/generic/generic.service';
-import Message from './entities/message.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import GenericService from '../generic/generic.service';
+import User from '../user/user.entity';
 import { ConversationService } from './conversation.service';
-import User from 'src/user/user.entity';
 import createMessageDTO from './dto/createMessage.dto';
+import Message from './entities/message.entity';
 
 @Injectable()
 export class MessageService extends GenericService<Message> {
@@ -15,6 +15,7 @@ export class MessageService extends GenericService<Message> {
     private readonly conversationService: ConversationService,
   ) {
     super(messageRepository);
+    this.scope = 'message';
   }
   async getByConversation(
     conversationId: number,
