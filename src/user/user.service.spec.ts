@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import Conversation from '../chat/entities/conversation.entity';
 import Message from '../chat/entities/message.entity';
+import { Notification } from '../notifications/entities/notification.entity';
 import Payment from '../payment/payment.entity';
 import User from './user.entity';
 import { UserService } from './user.service';
@@ -25,7 +26,7 @@ describe('UserService', () => {
       type: 'sqlite',
       database: ':memory:',
       dropSchema: true,
-      entities: [User, Conversation, Message, Payment],
+      entities: [User, Conversation, Message, Payment, Notification],
       synchronize: true,
       logging: false,
       name: 'test-connection',
