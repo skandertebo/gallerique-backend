@@ -1,8 +1,8 @@
-import GenericEntity from 'src/generic/generic.entity';
-import User from 'src/user/user.entity';
-import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
-import Message from './message.entity';
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
+import GenericEntity from '../../generic/generic.entity';
+import User from '../../user/user.entity';
+import Message from './message.entity';
 
 export enum ConversationType {
   AUCTION,
