@@ -1,12 +1,12 @@
-import Stripe from 'stripe';
-import { StripeService } from './../stripe/stripe.service';
 import { HttpException, Injectable } from '@nestjs/common';
-import { TopUpDto } from './dto/paymentDto';
 import { InjectRepository } from '@nestjs/typeorm';
-import Payment, { PaymentStatus } from './payment.entity';
-import { EntityNotFoundError, Repository } from 'typeorm';
 import User from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
+import Stripe from 'stripe';
+import { EntityNotFoundError, Repository } from 'typeorm';
+import { StripeService } from './../stripe/stripe.service';
+import { TopUpDto } from './dto/topUp.dto';
+import Payment, { PaymentStatus } from './payment.entity';
 
 @Injectable()
 export class PaymentService {
