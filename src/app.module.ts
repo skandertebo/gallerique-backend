@@ -20,6 +20,8 @@ import { StripeModule } from './stripe/stripe.module';
 import User from './user/user.entity';
 import UserModule from './user/user.module';
 import { WebSocketManagerGateway } from './websocket-manager/websocket.gateway';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+
 dotenv.config();
 @Module({
   imports: [
@@ -51,6 +53,7 @@ dotenv.config();
     StripeModule,
     PaymentModule,
     ConfigModule.forRoot(),
+    EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService, WebSocketManagerGateway],
