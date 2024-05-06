@@ -1,25 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import GenericService from 'src/generic/generic.service';
+import GenericService from '../generic/generic.service';
 import { CreateNotificationInput } from './dto/create-notification.input';
 import { UpdateNotificationInput } from './dto/update-notification.input';
 import { Notification } from './entities/notification.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
+import { OnEvent } from '@nestjs/event-emitter';
+import { Subject } from 'rxjs';
+
 @Injectable()
 export default class NotificationsService extends GenericService<
   Notification,
   CreateNotificationInput,
   UpdateNotificationInput
 > {
+  eventSubject: Subject<CreateNotificationInput>;
   constructor(
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
     private readonly userService: UserService,
   ) {
     super(notificationRepository);
+    this.eventSubject = new Subject();
   }
 
+  @OnEvent('NotificationEvent')
   async createNotification(
     createNotificationInput: CreateNotificationInput,
   ): Promise<Notification> {
@@ -35,6 +41,15 @@ export default class NotificationsService extends GenericService<
     const createdNotification =
       await this.notificationRepository.save(notification);
     return createdNotification;
+  }
+
+  @OnEvent('NotificationEvent')
+  sendNotificationEvent(notificationPayload: CreateNotificationInput) {
+    this.eventSubject.next(notificationPayload);
+  }
+
+  getNotificationStream() {
+    return this.eventSubject.asObservable();
   }
 
   async findNotificationsByUser(
