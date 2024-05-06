@@ -3,11 +3,12 @@ import { AuctionService } from './auction.service';
 import { Auction } from './entities/auction.entity';
 import { CreateAuctionInput } from './dto/create-auction.input';
 import { UpdateAuctionInput } from './dto/update-auction.input';
-import { GetUser } from 'src/auth/decorators/getUser.decorator';
-import User from 'src/user/user.entity';
+import { GetUser } from '../auth/decorators/getUser.decorator';
+import User from '../user/user.entity';
 import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 import { BidService } from './bid.service';
+import { CreateBidInput } from './dto/create-bid.input';
 
 @UseGuards(JwtAuthGuard)
 @Resolver(() => Auction)
@@ -25,6 +26,8 @@ export class AuctionResolver {
     const auction = {
       ...createAuctionInput,
       owner: user,
+      //5 hours from now
+      endTime: new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString(),
     };
     return this.auctionService.create(auction);
   }
@@ -56,15 +59,10 @@ export class AuctionResolver {
 
   @Mutation(() => Auction)
   async createBid(
-    @Args('auctionId', { type: () => Int }) auctionId: number,
-    @Args('price', { type: () => Int }) price: number,
+    @Args('createBidInput') createBidInput: CreateBidInput,
     @GetUser() user: User,
   ) {
-    const bid = {
-      price,
-      owner: user,
-    };
-    await this.bidService.addBidToAuction(bid, auctionId, user);
-    return this.auctionService.findOne(auctionId);
+    await this.bidService.bid(createBidInput, user);
+    return this.auctionService.findOne(createBidInput.auctionId);
   }
 }

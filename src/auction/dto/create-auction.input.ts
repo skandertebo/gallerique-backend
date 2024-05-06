@@ -1,13 +1,9 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { AuctionStatus } from '../entities/auction.entity';
 
 @InputType()
 export class CreateAuctionInput {
   @Field()
   title: string;
-
-  @Field()
-  picture: string;
 
   @Field()
   description: string;
@@ -17,10 +13,4 @@ export class CreateAuctionInput {
 
   @Field()
   startDate: string;
-
-  @Field()
-  endTime: string;
-
-  @Field()
-  status: AuctionStatus;
 }

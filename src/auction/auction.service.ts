@@ -3,7 +3,7 @@ import GenericService from '../generic/generic.service';
 import { Auction, AuctionStatus } from './entities/auction.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuctionService extends GenericService<Auction> {
@@ -16,7 +16,12 @@ export class AuctionService extends GenericService<Auction> {
   }
 
   async endAuction(auctionId: number) {
+    //check if the end time has passed
     const auction = await this.findOne(auctionId);
+    const endTime = new Date(auction.endTime);
+    if (new Date() < endTime) {
+      throw new Error('The auction has not ended yet');
+    }
     auction.status = AuctionStatus.CLOSED;
     // Update the owner's credit
     const owner = await this.userService.findOne(auction.owner.id);
@@ -27,5 +32,11 @@ export class AuctionService extends GenericService<Auction> {
     auction.winner.credit -= auction.currentPrice;
     await this.userService.save(auction.winner);
     return this.update(auctionId, auction);
+  }
+
+  async getAuctionsByUser(userId: number) {
+    return this.auctionRepository.find({
+      where: { owner: { id: userId } },
+    });
   }
 }

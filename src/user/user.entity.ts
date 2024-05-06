@@ -6,8 +6,8 @@ import { Auction } from '../auction/entities/auction.entity';
 import { Bid } from '../auction/entities/bid.entity';
 
 export enum UserStatus {
-  UNVERIFIED = 0,
-  VERIFIED = 1,
+  UNVERIFIED,
+  VERIFIED,
 }
 
 @ObjectType()
@@ -61,4 +61,8 @@ export default class User extends GenericEntity {
   @Field(() => [Auction])
   @OneToMany(() => Auction, (auction) => auction.winner)
   wonAuctions: Auction[];
+
+  @Field(() => [Auction])
+  @ManyToMany(() => Auction, (auction) => auction.members)
+  auctionsParticipated: Auction[];
 }

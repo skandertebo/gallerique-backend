@@ -2,7 +2,7 @@ import { ObjectType, Field } from '@nestjs/graphql';
 import { Bid } from './bid.entity';
 import GenericEntity from '../../generic/generic.entity';
 import User from '../../user/user.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
 
 export enum AuctionStatus {
   OPEN = 'OPEN',
@@ -55,4 +55,8 @@ export class Auction extends GenericEntity {
   @Field(() => User)
   @ManyToOne(() => User)
   winner: User;
+
+  @Field(() => [User])
+  @ManyToMany(() => User)
+  members: User[];
 }

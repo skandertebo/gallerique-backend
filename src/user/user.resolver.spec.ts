@@ -23,6 +23,7 @@ describe('UserResolver', () => {
       updatedAt: new Date(),
       deletedAt: null,
       wonAuctions: null,
+      auctionsParticipated: null,
     };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
