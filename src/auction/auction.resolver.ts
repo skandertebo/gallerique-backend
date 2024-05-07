@@ -1,4 +1,12 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Int,
+  ResolveField,
+  Parent,
+} from '@nestjs/graphql';
 import { AuctionService } from './auction.service';
 import { Auction } from './entities/auction.entity';
 import { CreateAuctionInput } from './dto/create-auction.input';
@@ -9,6 +17,7 @@ import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 import { BidService } from './bid.service';
 import { CreateBidInput } from './dto/create-bid.input';
+import { Bid } from './entities/bid.entity';
 
 @UseGuards(JwtAuthGuard)
 @Resolver(() => Auction)
@@ -26,8 +35,10 @@ export class AuctionResolver {
     const auction = {
       ...createAuctionInput,
       owner: user,
-      //5 hours from now
-      endTime: new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString(),
+      //5 hours from startDate
+      endTime: new Date(
+        new Date(createAuctionInput.startDate).getTime() + 5 * 60 * 60 * 1000,
+      ).toISOString(),
     };
     return this.auctionService.create(auction);
   }
@@ -54,7 +65,7 @@ export class AuctionResolver {
 
   @Mutation(() => Auction)
   removeAuction(@Args('id', { type: () => Int }) id: number) {
-    return this.auctionService.delete(id);
+    return this.auctionService.endAuction(id);
   }
 
   @Mutation(() => Auction)
@@ -64,5 +75,13 @@ export class AuctionResolver {
   ) {
     await this.bidService.bid(createBidInput, user);
     return this.auctionService.findOne(createBidInput.auctionId);
+  }
+
+  @ResolveField()
+  async bids(
+    @Parent() auction: Auction,
+    @Args('limit', { nullable: true, defaultValue: 10 }) limit: number,
+  ): Promise<Bid[]> {
+    return this.bidService.getByAuction(auction.id, 1, limit);
   }
 }

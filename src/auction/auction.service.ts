@@ -39,4 +39,25 @@ export class AuctionService extends GenericService<Auction> {
       where: { owner: { id: userId } },
     });
   }
+
+  async joinAuction(auctionId: number, userId: number) {
+    const user = await this.userService.findOne(userId);
+    const auction = await this.findOne(auctionId);
+    if (user == auction.owner) {
+      throw new Error('You cannot join your own auction');
+    }
+    auction.members.push(user);
+    return this.update(auctionId, auction);
+  }
+
+  async getAuctionsByStatus(status: AuctionStatus) {
+    return this.auctionRepository.find({
+      where: { status },
+    });
+  }
+
+  async getNumberOfMembers(auctionId: number) {
+    const auction = await this.findOne(auctionId);
+    return auction.members.length;
+  }
 }

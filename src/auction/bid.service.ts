@@ -42,4 +42,18 @@ export class BidService extends GenericService<Bid> {
     });
     return this.bidRepository.save(bid);
   }
+
+  async getByAuction(
+    auctionId: number,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<Bid[]> {
+    const queryBuilder = this.bidRepository
+      .createQueryBuilder('bid')
+      .leftJoinAndSelect('bid.owner', 'owner')
+      .where('bid.auctionId = :auctionId', { auctionId })
+      .orderBy('bid.createdAt', 'ASC');
+
+    return await this.paginate(queryBuilder, page, limit);
+  }
 }
