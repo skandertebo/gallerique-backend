@@ -20,6 +20,9 @@ import { StripeModule } from './stripe/stripe.module';
 import User from './user/user.entity';
 import UserModule from './user/user.module';
 import { WebSocketManagerGateway } from './websocket-manager/websocket.gateway';
+import { AuctionModule } from './auction/auction.module';
+import { Bid } from './auction/entities/bid.entity';
+import { Auction } from './auction/entities/auction.entity';
 dotenv.config();
 @Module({
   imports: [
@@ -36,7 +39,15 @@ dotenv.config();
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Notification, Message, Conversation, Payment],
+      entities: [
+        User,
+        Notification,
+        Message,
+        Conversation,
+        Bid,
+        Auction,
+        Payment,
+      ],
       synchronize: true,
     }),
     AzureStorageModule.withConfig({
@@ -51,6 +62,7 @@ dotenv.config();
     StripeModule,
     PaymentModule,
     ConfigModule.forRoot(),
+    AuctionModule,
   ],
   controllers: [AppController],
   providers: [AppService, WebSocketManagerGateway],
