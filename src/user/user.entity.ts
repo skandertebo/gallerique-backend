@@ -4,7 +4,8 @@ import Conversation from '../chat/entities/conversation.entity';
 import GenericEntity from '../generic/generic.entity';
 import { Auction } from '../auction/entities/auction.entity';
 import { Bid } from '../auction/entities/bid.entity';
-
+import { Notification } from '../notifications/entities/notification.entity';
+import Payment from '../payment/payment.entity';
 export enum UserStatus {
   UNVERIFIED,
   VERIFIED,
@@ -43,12 +44,20 @@ export default class User extends GenericEntity {
   @Field(() => [Conversation], { nullable: true })
   conversations: Conversation[];
 
+  @ManyToMany(() => Notification, (notification) => notification.users)
+  @Field(() => [Notification], { nullable: true })
+  notifications: Notification[];
+
   @Column()
   password: string;
 
   @Field()
   @Column({ default: 0 })
   credit: number;
+
+  @OneToMany(() => Payment, (payment) => payment.user)
+  @Field(() => [Payment], { nullable: true })
+  payments: Payment[];
 
   @Field(() => [Auction], { nullable: true })
   @OneToMany(() => Auction, (auction) => auction.owner)

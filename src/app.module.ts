@@ -1,6 +1,7 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AzureStorageModule } from '@nestjs/azure-storage';
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
@@ -11,6 +12,11 @@ import { ChatModule } from './chat/chat.module';
 import Conversation from './chat/entities/conversation.entity';
 import Message from './chat/entities/message.entity';
 import HelloWorldModule from './hello-world/hello-world.module';
+import { Notification } from './notifications/entities/notification.entity';
+import { NotificationsModule } from './notifications/notifications.module';
+import Payment from './payment/payment.entity';
+import { PaymentModule } from './payment/payment.module';
+import { StripeModule } from './stripe/stripe.module';
 import User from './user/user.entity';
 import UserModule from './user/user.module';
 import { WebSocketManagerGateway } from './websocket-manager/websocket.gateway';
@@ -24,6 +30,7 @@ dotenv.config();
     GraphQLModule.forRoot<ApolloDriverConfig>({
       autoSchemaFile: true,
       driver: ApolloDriver,
+      playground: true,
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -32,7 +39,15 @@ dotenv.config();
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [User, Message, Conversation, Bid, Auction],
+      entities: [
+        User,
+        Notification,
+        Message,
+        Conversation,
+        Bid,
+        Auction,
+        Payment,
+      ],
       synchronize: true,
     }),
     AzureStorageModule.withConfig({
@@ -42,7 +57,11 @@ dotenv.config();
     }),
     UserModule,
     AuthModule,
+    NotificationsModule,
     ChatModule,
+    StripeModule,
+    PaymentModule,
+    ConfigModule.forRoot(),
     AuctionModule,
   ],
   controllers: [AppController],
