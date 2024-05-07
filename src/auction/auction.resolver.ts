@@ -18,6 +18,8 @@ import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 import { BidService } from './bid.service';
 import { CreateBidInput } from './dto/create-bid.input';
 import { Bid } from './entities/bid.entity';
+import Conversation from 'src/chat/entities/conversation.entity';
+import { ConversationService } from 'src/chat/conversation.service';
 
 @UseGuards(JwtAuthGuard)
 @Resolver(() => Auction)
@@ -25,6 +27,7 @@ export class AuctionResolver {
   constructor(
     private readonly auctionService: AuctionService,
     private readonly bidService: BidService,
+    private readonly conversationService: ConversationService,
   ) {}
 
   @Mutation(() => Auction)
@@ -32,15 +35,10 @@ export class AuctionResolver {
     @Args('createAuctionInput') createAuctionInput: CreateAuctionInput,
     @GetUser() user: User,
   ) {
-    const auction = {
+    return this.auctionService.createAuction({
       ...createAuctionInput,
       owner: user,
-      //5 hours from startDate
-      endTime: new Date(
-        new Date(createAuctionInput.startDate).getTime() + 5 * 60 * 60 * 1000,
-      ).toISOString(),
-    };
-    return this.auctionService.create(auction);
+    });
   }
 
   @Query(() => [Auction], { name: 'auctions' })
@@ -83,5 +81,10 @@ export class AuctionResolver {
     @Args('limit', { nullable: true, defaultValue: 10 }) limit: number,
   ): Promise<Bid[]> {
     return this.bidService.getByAuction(auction.id, 1, limit);
+  }
+
+  @ResolveField()
+  async conversation(@Parent() auction: Auction): Promise<Conversation> {
+    return this.conversationService.findByAuction(auction.id);
   }
 }

@@ -1,13 +1,24 @@
-import { ObjectType, Field } from '@nestjs/graphql';
+import { ObjectType, Field, registerEnumType } from '@nestjs/graphql';
 import { Bid } from './bid.entity';
 import GenericEntity from '../../generic/generic.entity';
 import User from '../../user/user.entity';
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
+import Conversation from '../../chat/entities/conversation.entity';
 
 export enum AuctionStatus {
   OPEN = 'OPEN',
   CLOSED = 'CLOSED',
 }
+
+registerEnumType(AuctionStatus, { name: 'AuctionStatus' });
 
 @ObjectType()
 @Entity()
@@ -59,4 +70,9 @@ export class Auction extends GenericEntity {
   @Field(() => [User])
   @ManyToMany(() => User)
   members: User[];
+
+  @Field(() => Conversation)
+  @OneToOne(() => Conversation, (conv) => conv.auction)
+  @JoinColumn()
+  conversation: Conversation;
 }

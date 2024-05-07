@@ -7,8 +7,10 @@ import { BidService } from './bid.service';
 import UserModule from 'src/user/user.module';
 import { Bid } from './entities/bid.entity';
 
+import { ChatModule } from 'src/chat/chat.module';
+
 @Module({
-  imports: [TypeOrmModule.forFeature([Auction, Bid]), UserModule],
+  imports: [TypeOrmModule.forFeature([Auction, Bid]), UserModule, ChatModule],
   providers: [AuctionResolver, AuctionService, BidService],
   exports: [AuctionService, BidService],
 })

@@ -4,6 +4,7 @@ import { Auction, AuctionStatus } from './entities/auction.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserService } from '../user/user.service';
+import { ConversationService } from 'src/chat/conversation.service';
 
 @Injectable()
 export class AuctionService extends GenericService<Auction> {
@@ -11,8 +12,24 @@ export class AuctionService extends GenericService<Auction> {
     @InjectRepository(Auction)
     private readonly auctionRepository: Repository<Auction>,
     private readonly userService: UserService,
+    private readonly conversationService: ConversationService,
   ) {
     super(auctionRepository);
+  }
+  async createAuction(auction: Partial<Auction>) {
+    auction = {
+      ...auction,
+      //5 hours from startDate
+      //TODO: Config should be centralised
+      endTime: new Date(
+        new Date(auction.startDate).getTime() + 5 * 60 * 60 * 1000,
+      ).toISOString(),
+    };
+    const newAuction = await this.create(auction);
+
+    await this.conversationService.createAuctionConversation(newAuction);
+
+    return newAuction;
   }
 
   async endAuction(auctionId: number) {
