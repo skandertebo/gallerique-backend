@@ -11,6 +11,8 @@ import { Notification } from '../notifications/entities/notification.entity';
 import Payment from '../payment/payment.entity';
 import User from './user.entity';
 import { UserService } from './user.service';
+import { Auction } from '../auction/entities/auction.entity';
+import { Bid } from '../auction/entities/bid.entity';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('iconv-lite').encodingExists('foo');
 
@@ -26,7 +28,15 @@ describe('UserService', () => {
       type: 'sqlite',
       database: ':memory:',
       dropSchema: true,
-      entities: [User, Conversation, Message, Payment, Notification],
+      entities: [
+        User,
+        Conversation,
+        Message,
+        Payment,
+        Notification,
+        Auction,
+        Bid,
+      ],
       synchronize: true,
       logging: false,
       name: 'test-connection',
