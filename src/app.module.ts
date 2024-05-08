@@ -8,6 +8,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuctionModule } from './auction/auction.module';
+import { Auction } from './auction/entities/auction.entity';
+import { Bid } from './auction/entities/bid.entity';
 import { AuthModule } from './auth/auth.module';
 import { ChatModule } from './chat/chat.module';
 import Conversation from './chat/entities/conversation.entity';
@@ -21,10 +24,6 @@ import { StripeModule } from './stripe/stripe.module';
 import User from './user/user.entity';
 import UserModule from './user/user.module';
 import { WebSocketManagerGateway } from './websocket-manager/websocket.gateway';
-
-import { AuctionModule } from './auction/auction.module';
-import { Auction } from './auction/entities/auction.entity';
-import { Bid } from './auction/entities/bid.entity';
 dotenv.config();
 @Module({
   imports: [
