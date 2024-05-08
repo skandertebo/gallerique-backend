@@ -5,7 +5,6 @@ import User from '../../user/user.entity';
 import {
   Column,
   Entity,
-  JoinColumn,
   ManyToMany,
   ManyToOne,
   OneToMany,
@@ -73,6 +72,5 @@ export class Auction extends GenericEntity {
 
   @Field(() => Conversation)
   @OneToOne(() => Conversation, (conv) => conv.auction)
-  @JoinColumn()
   conversation: Conversation;
 }
