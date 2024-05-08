@@ -3,6 +3,8 @@ import Conversation from '../entities/conversation.entity';
 import { ConversationService } from '../conversation.service';
 import { MessageService } from '../message.service';
 import Message from '../entities/message.entity';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
 
 @Resolver(() => Conversation)
 export class ConversationResolver {
@@ -11,6 +13,7 @@ export class ConversationResolver {
     private readonly messageService: MessageService,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Query(() => Conversation)
   async getConversation(@Args('id') id: number): Promise<Conversation> {
     const conversation = await this.conversationService.findOne(id);
