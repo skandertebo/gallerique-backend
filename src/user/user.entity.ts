@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, OneToMany, JoinTable, ManyToMany } from 'typeorm';
+import { Column, Entity, OneToMany, ManyToMany } from 'typeorm';
 import Conversation from '../chat/entities/conversation.entity';
 import GenericEntity from '../generic/generic.entity';
 import { Auction } from '../auction/entities/auction.entity';
@@ -40,7 +40,6 @@ export default class User extends GenericEntity {
   status: UserStatus;
 
   @ManyToMany(() => Conversation, (conversation) => conversation.users)
-  @JoinTable()
   @Field(() => [Conversation], { nullable: true })
   conversations: Conversation[];
 

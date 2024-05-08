@@ -1,5 +1,6 @@
 import { InputType, Field } from '@nestjs/graphql';
 
+//TODO:validation
 @InputType()
 export class CreateAuctionInput {
   @Field()

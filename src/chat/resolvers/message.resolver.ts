@@ -19,6 +19,7 @@ export class MessageResolver {
     return await this.messageService.createMessage(createMessageInput, user);
   }
   @Query(() => [Message])
+  @UseGuards(JwtAuthGuard)
   async getMessagesByConversation(
     @Args('conversationID') conversationId: number,
     @Args('page', { type: () => Int, nullable: true, defaultValue: 1 })
