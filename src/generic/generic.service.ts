@@ -60,7 +60,7 @@ export default class GenericService<
   }
 
   async delete(id: number): Promise<boolean> {
-    await this.repository.delete(id);
+    await this.repository.softDelete(id);
     return true;
   }
 
