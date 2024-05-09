@@ -68,6 +68,14 @@ export default class GenericService<
     return this.repository.find();
   }
 
+  async findAllPaginated(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<Entity[]> {
+    const queryBuilder = this.repository.createQueryBuilder();
+    return this.paginate(queryBuilder.select(), page, limit);
+  }
+
   async findOne(id: number): Promise<Entity> {
     const entity = await this.repository.findOne({
       where: { id } as FindOptionsWhere<Entity>,

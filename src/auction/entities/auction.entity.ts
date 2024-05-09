@@ -1,20 +1,22 @@
-import { ObjectType, Field, registerEnumType } from '@nestjs/graphql';
-import { Bid } from './bid.entity';
-import GenericEntity from '../../generic/generic.entity';
-import User from '../../user/user.entity';
+import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import {
   Column,
   Entity,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
 } from 'typeorm';
 import Conversation from '../../chat/entities/conversation.entity';
+import GenericEntity from '../../generic/generic.entity';
+import User from '../../user/user.entity';
+import { Bid } from './bid.entity';
 
 export enum AuctionStatus {
   OPEN = 'OPEN',
   CLOSED = 'CLOSED',
+  PENDING = 'PENDING',
 }
 
 registerEnumType(AuctionStatus, { name: 'AuctionStatus' });
@@ -27,7 +29,7 @@ export class Auction extends GenericEntity {
   title!: string;
 
   @Field()
-  @Column()
+  @Column({ default: '' })
   picture: string;
 
   @Field()
@@ -51,7 +53,7 @@ export class Auction extends GenericEntity {
   endTime!: string;
 
   @Field()
-  @Column({ default: AuctionStatus.CLOSED })
+  @Column({ default: AuctionStatus.OPEN, type: 'varchar' })
   status!: AuctionStatus;
 
   @Field(() => [Bid])
@@ -68,6 +70,7 @@ export class Auction extends GenericEntity {
 
   @Field(() => [User])
   @ManyToMany(() => User)
+  @JoinTable()
   members: User[];
 
   @Field(() => Conversation)
