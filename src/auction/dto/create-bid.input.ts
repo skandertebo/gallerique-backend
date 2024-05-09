@@ -7,7 +7,4 @@ export class CreateBidInput {
 
   @Field()
   price: number;
-
-  @Field()
-  startDate: Date;
 }

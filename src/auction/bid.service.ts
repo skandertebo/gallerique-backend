@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { Bid } from './entities/bid.entity';
-import GenericService from '../generic/generic.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuctionService } from '../auction/auction.service';
+import GenericService from '../generic/generic.service';
 import User from '../user/user.entity';
 import { CreateBidInput } from './dto/create-bid.input';
+import { AuctionStatus } from './entities/auction.entity';
+import { Bid } from './entities/bid.entity';
 
 @Injectable()
 export class BidService extends GenericService<Bid> {
@@ -19,10 +20,14 @@ export class BidService extends GenericService<Bid> {
 
   async bid(createBidInput: CreateBidInput, user: User): Promise<Bid> {
     const auction = await this.auctionService.findOne(createBidInput.auctionId);
-    if (auction.status !== 'OPEN') {
+    if (auction.status !== AuctionStatus.OPEN) {
       throw new Error('The auction is not open for bidding');
     }
-    if (!auction.members.includes(user)) {
+    const hasUserJoinedAuction = this.auctionService.hasUserJoinedAuction(
+      createBidInput.auctionId,
+      user.id,
+    );
+    if (!hasUserJoinedAuction) {
       throw new Error('You are not a member of this auction');
     }
     //check if the user has enough credit

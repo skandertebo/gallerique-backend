@@ -1,9 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, OneToMany, JoinTable, ManyToMany } from 'typeorm';
-import Conversation from '../chat/entities/conversation.entity';
-import GenericEntity from '../generic/generic.entity';
+import { Column, Entity, ManyToMany, OneToMany } from 'typeorm';
 import { Auction } from '../auction/entities/auction.entity';
 import { Bid } from '../auction/entities/bid.entity';
+import Conversation from '../chat/entities/conversation.entity';
+import GenericEntity from '../generic/generic.entity';
 import { Notification } from '../notifications/entities/notification.entity';
 import Payment from '../payment/payment.entity';
 export enum UserStatus {
@@ -21,26 +21,21 @@ export default class User extends GenericEntity {
 
   @Field()
   @Column()
-  @Field()
   lastName: string;
 
   @Field()
   @Column()
-  @Field()
   email: string;
 
   @Field()
   @Column()
-  @Field()
   address: string;
 
   @Field()
   @Column({ default: UserStatus.UNVERIFIED, type: 'int' })
-  @Field()
   status: UserStatus;
 
   @ManyToMany(() => Conversation, (conversation) => conversation.users)
-  @JoinTable()
   @Field(() => [Conversation], { nullable: true })
   conversations: Conversation[];
 

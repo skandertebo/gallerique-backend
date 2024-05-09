@@ -60,7 +60,7 @@ export default class GenericService<
   }
 
   async delete(id: number): Promise<boolean> {
-    await this.repository.delete(id);
+    await this.repository.softDelete(id);
     return true;
   }
 
@@ -68,12 +68,19 @@ export default class GenericService<
     return this.repository.find();
   }
 
+  async findAllPaginated(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<Entity[]> {
+    const queryBuilder = this.repository.createQueryBuilder();
+    return this.paginate(queryBuilder.select(), page, limit);
+  }
+
   async findOne(id: number): Promise<Entity> {
-    const entity = this.repository.findOne({
+    const entity = await this.repository.findOne({
       where: { id } as FindOptionsWhere<Entity>,
     });
-    if (!entity)
-      throw new NotFoundException(`Entity with id:${id} was not found`);
+    if (!entity) throw new Error(`Entity with id:${id} was not found`);
     return entity;
   }
 

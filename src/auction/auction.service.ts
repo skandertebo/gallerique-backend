@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import GenericService from '../generic/generic.service';
-import { Auction, AuctionStatus } from './entities/auction.entity';
-import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ConversationService } from 'src/chat/conversation.service';
+import { Repository } from 'typeorm';
+import GenericService from '../generic/generic.service';
 import { UserService } from '../user/user.service';
+import { Auction, AuctionStatus } from './entities/auction.entity';
 
 @Injectable()
 export class AuctionService extends GenericService<Auction> {
@@ -11,8 +12,33 @@ export class AuctionService extends GenericService<Auction> {
     @InjectRepository(Auction)
     private readonly auctionRepository: Repository<Auction>,
     private readonly userService: UserService,
+    private readonly conversationService: ConversationService,
   ) {
     super(auctionRepository);
+  }
+  async createAuction(auction: Partial<Auction>) {
+    auction = {
+      ...auction,
+      //5 hours from startDate
+      //TODO: Config should be centralised
+      endTime: new Date(
+        new Date(auction.startDate).getTime() + 5 * 60 * 60 * 1000,
+      ).toISOString(),
+      currentPrice: auction.startPrice,
+    };
+    const newAuction = await this.create(auction);
+
+    await this.conversationService.createAuctionConversation(newAuction);
+
+    return newAuction;
+  }
+
+  async isOwner(auctionId: number, userId: number) {
+    const result = await this.auctionRepository.query(
+      'SELECT * FROM auction WHERE id = ? AND ownerId = ?',
+      [auctionId, userId],
+    );
+    return !!result;
   }
 
   async endAuction(auctionId: number) {
@@ -37,6 +63,18 @@ export class AuctionService extends GenericService<Auction> {
   async getAuctionsByUser(userId: number) {
     return this.auctionRepository.find({
       where: { owner: { id: userId } },
+    });
+  }
+
+  async getAuctionsWhereUserIsMember(userId: number) {
+    return this.auctionRepository.find({
+      where: { members: { id: userId } },
+    });
+  }
+
+  async hasUserJoinedAuction(auctionId: number, userId: number) {
+    return this.auctionRepository.find({
+      where: { id: auctionId, members: { id: userId } },
     });
   }
 

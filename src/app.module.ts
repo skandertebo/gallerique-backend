@@ -1,11 +1,15 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuctionModule } from './auction/auction.module';
+import { Auction } from './auction/entities/auction.entity';
+import { Bid } from './auction/entities/bid.entity';
 import { AuthModule } from './auth/auth.module';
 import { ChatModule } from './chat/chat.module';
 import Conversation from './chat/entities/conversation.entity';
@@ -19,9 +23,6 @@ import { StripeModule } from './stripe/stripe.module';
 import User from './user/user.entity';
 import UserModule from './user/user.module';
 import { WebSocketManagerGateway } from './websocket-manager/websocket.gateway';
-import { AuctionModule } from './auction/auction.module';
-import { Bid } from './auction/entities/bid.entity';
-import { Auction } from './auction/entities/auction.entity';
 import { FileModule } from './File/file.module';
 import { FileUpload } from './File/fileUpload.entity';
 dotenv.config();
@@ -62,6 +63,7 @@ dotenv.config();
     ConfigModule.forRoot(),
     AuctionModule,
     FileModule,
+    EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService, WebSocketManagerGateway],
