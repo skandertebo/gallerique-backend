@@ -42,8 +42,11 @@ export class AuctionResolver {
   }
 
   @Query(() => [Auction], { name: 'auctions' })
-  findAll() {
-    return this.auctionService.findAll();
+  findAll(
+    @Args('limit', { type: () => Int, nullable: true }) limit: number,
+    @Args('page', { type: () => Int, nullable: true }) page: number,
+  ) {
+    return this.auctionService.findAllPaginated(page, limit);
   }
 
   @Query(() => Auction, { name: 'auction' })
