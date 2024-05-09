@@ -1,8 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import GenericEntity from '../../generic/generic.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
-import { Auction } from './auction.entity';
+import GenericEntity from '../../generic/generic.entity';
 import User from '../../user/user.entity';
+import { Auction } from './auction.entity';
 
 @ObjectType()
 @Entity()
