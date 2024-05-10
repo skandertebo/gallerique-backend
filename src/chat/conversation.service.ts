@@ -28,6 +28,12 @@ export class ConversationService extends GenericServiceWithObservable<Conversati
       auction,
     });
   }
+  async getUsers(conversationId: number) {
+    const conversation = await this.findOne(conversationId, {
+      relations: ['users'],
+    });
+    return conversation.users;
+  }
 
   async findByAuction(auctionId: number) {
     const result = this.conversationRepository.findOne({

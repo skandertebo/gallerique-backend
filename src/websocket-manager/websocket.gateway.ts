@@ -7,11 +7,13 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Subscription, filter } from 'rxjs';
+import { filterByPromise } from 'filter-async-rxjs-pipe';
+import { Subscription } from 'rxjs';
 import { Server, Socket } from 'socket.io';
 import { AuctionService } from 'src/auction/auction.service';
 import { AuthService } from 'src/auth/auth.service';
 import { ConversationService } from 'src/chat/conversation.service';
+import { ConversationType } from 'src/chat/entities/conversation.entity';
 import { MessageService } from 'src/chat/message.service';
 import { UserService } from 'src/user/user.service';
 
@@ -54,7 +56,27 @@ export class WebSocketManagerGateway
         return;
       }
       const subscription = this.messageService.observable
-        .pipe(filter((message) => message.userId == user.id))
+        .pipe(
+          filterByPromise(async (v) => {
+            const message = v.payload;
+            const conversation = message?.conversation;
+            if (!conversation) return false;
+            if (conversation?.type === ConversationType.AUCTION) {
+              if (!conversation.auction) return false;
+              const isMember = await this.auctionService.hasUserJoinedAuction(
+                user.id,
+                conversation.auction.id,
+              );
+              return isMember;
+            } else {
+              const conversationMembers =
+                await this.conversationService.getUsers(conversation.id);
+              return conversationMembers.some(
+                (member) => member.id === user.id,
+              );
+            }
+          }),
+        )
         .subscribe((message) => {
           client.emit('message', message);
         });
@@ -114,7 +136,6 @@ export class WebSocketManagerGateway
     this.messageService.emit({
       scope: 'message',
       payload: message,
-      userId: user.userId,
       requestId: payload.requestId,
     });
   }

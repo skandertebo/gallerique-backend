@@ -73,7 +73,7 @@ export class AuctionService extends GenericServiceWithObservable<Auction> {
   }
 
   async hasUserJoinedAuction(auctionId: number, userId: number) {
-    return this.auctionRepository.find({
+    return !!this.auctionRepository.find({
       where: { id: auctionId, members: { id: userId } },
     });
   }

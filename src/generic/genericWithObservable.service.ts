@@ -7,7 +7,6 @@ import GenericService from './generic.service';
 interface ObservableMessage<Entity extends GenericEntity> {
   scope: string;
   payload: Entity;
-  userId: number;
   requestId?: string;
 }
 
