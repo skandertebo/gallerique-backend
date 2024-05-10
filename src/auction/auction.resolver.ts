@@ -64,6 +64,14 @@ export class AuctionResolver {
     return this.auctionService.getAuctionsWhereUserIsMember(user.id);
   }
 
+  @Mutation(() => Auction, { name: 'joinAuction' })
+  joinAuction(
+    @Args('id', { type: () => Int }) id: number,
+    @GetUser() user: User,
+  ) {
+    return this.auctionService.joinAuction(id, user.id);
+  }
+
   // @Mutation(() => Auction)
   // updateAuction(
   //   @Args('updateAuctionInput') updateAuctionInput: UpdateAuctionInput,
@@ -93,6 +101,15 @@ export class AuctionResolver {
     await this.bidService.bid(createBidInput, user);
   }
 
+  @ResolveField(() => [User])
+  async members(@Parent() auction: Auction): Promise<Array<User>> {
+    return (
+      await this.auctionService.findOne(auction.id, {
+        relations: ['members'],
+      })
+    ).members;
+  }
+
   @ResolveField()
   async owner(@Parent() auction: Auction): Promise<User> {
     return (
@@ -111,5 +128,13 @@ export class AuctionResolver {
   @ResolveField()
   async conversation(@Parent() auction: Auction): Promise<Conversation> {
     return this.conversationService.findByAuction(auction.id);
+  }
+
+  @ResolveField(() => Boolean)
+  async isMember(
+    @Parent() auction: Auction,
+    @GetUser() user: User,
+  ): Promise<boolean> {
+    return this.auctionService.hasUserJoinedAuction(auction.id, user.id);
   }
 }

@@ -1,13 +1,19 @@
 import {
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Subscription, filter } from 'rxjs';
+import { filterByPromise } from 'filter-async-rxjs-pipe';
+import { Subscription } from 'rxjs';
 import { Server, Socket } from 'socket.io';
+import { AuctionService } from 'src/auction/auction.service';
 import { AuthService } from 'src/auth/auth.service';
+import { ConversationService } from 'src/chat/conversation.service';
+import { ConversationType } from 'src/chat/entities/conversation.entity';
 import { MessageService } from 'src/chat/message.service';
 import { UserService } from 'src/user/user.service';
 
@@ -27,6 +33,8 @@ export class WebSocketManagerGateway
     private readonly messageService: MessageService,
     private readonly authService: AuthService,
     private readonly userService: UserService,
+    private readonly auctionService: AuctionService,
+    private readonly conversationService: ConversationService,
   ) {}
 
   private clients: Set<WebsocketClient> = new Set();
@@ -49,13 +57,29 @@ export class WebSocketManagerGateway
       }
       const subscription = this.messageService.observable
         .pipe(
-          filter(
-            (message) =>
-              !!message.payload.conversation.users.find((u) => u.id == user.id),
-          ),
+          filterByPromise(async (v) => {
+            const message = v.payload;
+            const conversation = message?.conversation;
+            if (!conversation) return false;
+            if (conversation?.type === ConversationType.AUCTION) {
+              if (!conversation.auction) return false;
+              const isMember = await this.auctionService.hasUserJoinedAuction(
+                conversation.auction.id,
+                user.id,
+              );
+              const isSender = message.sender?.id === user.id;
+              return isMember || isSender;
+            } else {
+              const conversationMembers =
+                await this.conversationService.getUsers(conversation.id);
+              return conversationMembers.some(
+                (member) => member.id === user.id,
+              );
+            }
+          }),
         )
         .subscribe((message) => {
-          client.emit('message', message);
+          client.emit(message.scope, message);
         });
       this.clients.add({
         socket: client,
@@ -67,10 +91,56 @@ export class WebSocketManagerGateway
     }
   }
 
-  @SubscribeMessage('message')
-  handleMessage(client: Socket, message: string) {
-    client.emit('message', message);
-    this.server.emit('message', message);
+  @SubscribeMessage('auction.message.send')
+  async handleMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    stringifiedMessage: string,
+  ) {
+    const payload = JSON.parse(stringifiedMessage) as {
+      auctionId: number;
+      content: string;
+      requestId: string;
+    };
+    if (!payload.auctionId) {
+      client.emit(
+        'error',
+        JSON.stringify({
+          requestId: payload.requestId,
+          message: 'auctionId not provided',
+        }),
+      );
+    } else if (!payload.content) {
+      client.emit(
+        'error',
+        JSON.stringify({
+          requestId: payload.requestId,
+          message: 'content not provided',
+        }),
+      );
+    }
+    const user = Array.from(this.clients).find((c) => c.socket.id == client.id);
+    if (!user) {
+      return;
+    }
+    const conversation = await this.conversationService.findByAuction(
+      payload.auctionId,
+    );
+    const userObj = await this.userService.findOne(user.userId);
+    const message = await this.messageService.createMessage(
+      {
+        content: payload.content,
+        conversationId: conversation.id,
+      },
+      userObj,
+    );
+    conversation.auction = { id: payload.auctionId, ...conversation.auction };
+    message.conversation = conversation;
+    this.messageService.emit({
+      scope: 'auction.message.send',
+      payload: message,
+      requestId: payload.requestId,
+    });
   }
 
   handleDisconnect(client: Socket) {
