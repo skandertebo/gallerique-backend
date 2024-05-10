@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Subject } from 'rxjs';
 import {
   DeepPartial,
   FindOneOptions,
@@ -10,28 +9,17 @@ import {
 } from 'typeorm';
 import GenericEntity from './generic.entity';
 
-interface ObservableMessage<Entity extends GenericEntity> {
-  scope: string;
-  payload: Entity;
-}
-
 @Injectable()
 export default class GenericService<
   Entity extends GenericEntity,
   CDTO extends DeepPartial<Entity> = DeepPartial<Entity>,
   UDTO extends DeepPartial<Entity> = DeepPartial<Entity>,
 > {
-  public scope: string = 'general';
   private readonly repository: Repository<Entity>;
-  public readonly observable: Subject<ObservableMessage<Entity>>;
   constructor(repository: Repository<Entity>) {
     this.repository = repository;
-    this.observable = new Subject<ObservableMessage<Entity>>();
   }
 
-  public emit(message: ObservableMessage<Entity>) {
-    this.observable.next(message);
-  }
   async findByIds(ids: number[]): Promise<Entity[]> {
     const entities = await this.repository.findBy({
       id: In(ids),
@@ -49,14 +37,12 @@ export default class GenericService<
   async create(data: CDTO): Promise<Entity> {
     const item = this.repository.create(data);
     const res = await this.repository.save(item);
-    this.emit({ scope: `${this.scope}.create`, payload: res });
     return res;
   }
 
   async update(id: number, data: UDTO): Promise<Entity> {
     let entity = await this.findOne(id);
     entity = this.repository.merge(entity, data);
-    this.emit({ scope: `${this.scope}.update`, payload: entity });
     return this.repository.save(entity);
   }
 

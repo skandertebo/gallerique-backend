@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Auction } from 'src/auction/entities/auction.entity';
+import GenericServiceWithObservable from 'src/generic/genericWithObservable.service';
 import { Repository } from 'typeorm';
-import GenericService from '../generic/generic.service';
 import User from '../user/user.entity';
 import Conversation, { ConversationType } from './entities/conversation.entity';
-import { Auction } from 'src/auction/entities/auction.entity';
 
 @Injectable()
-export class ConversationService extends GenericService<Conversation> {
+export class ConversationService extends GenericServiceWithObservable<Conversation> {
   constructor(
     @InjectRepository(Conversation)
     private readonly conversationRepository: Repository<Conversation>,

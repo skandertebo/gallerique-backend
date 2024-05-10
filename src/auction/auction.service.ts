@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConversationService } from 'src/chat/conversation.service';
+import GenericServiceWithObservable from 'src/generic/genericWithObservable.service';
 import { Repository } from 'typeorm';
-import GenericService from '../generic/generic.service';
 import { UserService } from '../user/user.service';
 import { Auction, AuctionStatus } from './entities/auction.entity';
 
 @Injectable()
-export class AuctionService extends GenericService<Auction> {
+export class AuctionService extends GenericServiceWithObservable<Auction> {
   constructor(
     @InjectRepository(Auction)
     private readonly auctionRepository: Repository<Auction>,

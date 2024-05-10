@@ -1,4 +1,6 @@
 import {
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
@@ -7,7 +9,9 @@ import {
 } from '@nestjs/websockets';
 import { Subscription, filter } from 'rxjs';
 import { Server, Socket } from 'socket.io';
+import { AuctionService } from 'src/auction/auction.service';
 import { AuthService } from 'src/auth/auth.service';
+import { ConversationService } from 'src/chat/conversation.service';
 import { MessageService } from 'src/chat/message.service';
 import { UserService } from 'src/user/user.service';
 
@@ -27,6 +31,8 @@ export class WebSocketManagerGateway
     private readonly messageService: MessageService,
     private readonly authService: AuthService,
     private readonly userService: UserService,
+    private readonly auctionService: AuctionService,
+    private readonly conversationService: ConversationService,
   ) {}
 
   private clients: Set<WebsocketClient> = new Set();
@@ -48,12 +54,7 @@ export class WebSocketManagerGateway
         return;
       }
       const subscription = this.messageService.observable
-        .pipe(
-          filter(
-            (message) =>
-              !!message.payload.conversation.users.find((u) => u.id == user.id),
-          ),
-        )
+        .pipe(filter((message) => message.userId == user.id))
         .subscribe((message) => {
           client.emit('message', message);
         });
@@ -67,10 +68,55 @@ export class WebSocketManagerGateway
     }
   }
 
-  @SubscribeMessage('message')
-  handleMessage(client: Socket, message: string) {
-    client.emit('message', message);
-    this.server.emit('message', message);
+  @SubscribeMessage('auction.message.send')
+  async handleMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    stringifiedMessage: string,
+  ) {
+    const payload = JSON.parse(stringifiedMessage) as {
+      auctionId: number;
+      content: string;
+      requestId: string;
+    };
+    if (!payload.auctionId) {
+      client.emit(
+        'error',
+        JSON.stringify({
+          requestId: payload.requestId,
+          message: 'auctionId not provided',
+        }),
+      );
+    } else if (!payload.content) {
+      client.emit(
+        'error',
+        JSON.stringify({
+          requestId: payload.requestId,
+          message: 'content not provided',
+        }),
+      );
+    }
+    const user = Array.from(this.clients).find((c) => c.socket.id == client.id);
+    if (!user) {
+      return;
+    }
+    const conversation = await this.conversationService.findByAuction(
+      payload.auctionId,
+    );
+    const userObj = await this.userService.findOne(user.userId);
+    const message = await this.messageService.createMessage(
+      {
+        content: payload.content,
+        conversationId: conversation.id,
+      },
+      userObj,
+    );
+    this.messageService.emit({
+      scope: 'message',
+      payload: message,
+      userId: user.userId,
+      requestId: payload.requestId,
+    });
   }
 
   handleDisconnect(client: Socket) {

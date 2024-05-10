@@ -8,10 +8,10 @@ import {
   OneToMany,
   OneToOne,
 } from 'typeorm';
+import { Auction } from '../../auction/entities/auction.entity';
 import GenericEntity from '../../generic/generic.entity';
 import User from '../../user/user.entity';
 import Message from './message.entity';
-import { Auction } from '../../auction/entities/auction.entity';
 
 export enum ConversationType {
   AUCTION = 'AUCTION',
