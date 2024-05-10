@@ -64,10 +64,11 @@ export class WebSocketManagerGateway
             if (conversation?.type === ConversationType.AUCTION) {
               if (!conversation.auction) return false;
               const isMember = await this.auctionService.hasUserJoinedAuction(
-                user.id,
                 conversation.auction.id,
+                user.id,
               );
-              return isMember;
+              const isSender = message.sender?.id === user.id;
+              return isMember || isSender;
             } else {
               const conversationMembers =
                 await this.conversationService.getUsers(conversation.id);
@@ -78,7 +79,7 @@ export class WebSocketManagerGateway
           }),
         )
         .subscribe((message) => {
-          client.emit('message', message);
+          client.emit(message.scope, message);
         });
       this.clients.add({
         socket: client,
@@ -133,8 +134,10 @@ export class WebSocketManagerGateway
       },
       userObj,
     );
+    conversation.auction = { id: payload.auctionId, ...conversation.auction };
+    message.conversation = conversation;
     this.messageService.emit({
-      scope: 'message',
+      scope: 'auction.message.send',
       payload: message,
       requestId: payload.requestId,
     });

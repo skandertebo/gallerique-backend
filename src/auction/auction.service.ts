@@ -73,14 +73,15 @@ export class AuctionService extends GenericServiceWithObservable<Auction> {
   }
 
   async hasUserJoinedAuction(auctionId: number, userId: number) {
-    return !!this.auctionRepository.find({
+    const auction = await this.auctionRepository.findOne({
       where: { id: auctionId, members: { id: userId } },
     });
+    return !!auction;
   }
 
   async joinAuction(auctionId: number, userId: number) {
     const user = await this.userService.findOne(userId);
-    const auction = await this.findOne(auctionId);
+    const auction = await this.findOne(auctionId, { relations: ['members'] });
     if (user == auction.owner) {
       throw new Error('You cannot join your own auction');
     }
