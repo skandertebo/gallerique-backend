@@ -26,7 +26,7 @@ export class MessageService extends GenericServiceWithObservable<Message> {
       .createQueryBuilder('message')
       .leftJoinAndSelect('message.sender', 'sender') // Assuming 'sender' is a relation in your Message entity
       .where('message.conversationId = :conversationId', { conversationId })
-      .orderBy('message.createdAt', 'ASC');
+      .orderBy('message.createdAt', 'DESC');
 
     return await this.paginate(queryBuilder, page, limit);
   }

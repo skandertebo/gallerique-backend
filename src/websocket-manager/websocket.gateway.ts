@@ -22,7 +22,7 @@ interface WebsocketClient {
   userId: number;
   observableSubscriptions: Subscription[];
 }
-@WebSocketGateway({ namespace: 'websocket' })
+@WebSocketGateway({ namespace: 'websocket', cors: true })
 export class WebSocketManagerGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {

@@ -1,5 +1,12 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Int,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
 import { ConversationService } from '../conversation.service';
 import Conversation from '../entities/conversation.entity';
@@ -23,8 +30,10 @@ export class ConversationResolver {
   @ResolveField()
   async messages(
     @Parent() conversation: Conversation,
-    @Args('limit', { nullable: true, defaultValue: 1000 }) limit: number,
-    @Args('page', { nullable: true, defaultValue: 1 }) page: number,
+    @Args('limit', { nullable: true, defaultValue: 1000, type: () => Int })
+    limit: number,
+    @Args('page', { nullable: true, defaultValue: 1, type: () => Int })
+    page: number,
   ): Promise<Message[]> {
     return await this.messageService.getByConversation(
       conversation.id,
