@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Subject } from 'rxjs';
 import {
   DeepPartial,
+  FindOneOptions,
   FindOptionsWhere,
   In,
   Repository,
@@ -76,9 +77,10 @@ export default class GenericService<
     return this.paginate(queryBuilder.select(), page, limit);
   }
 
-  async findOne(id: number): Promise<Entity> {
+  async findOne(id: number, options?: FindOneOptions<Entity>): Promise<Entity> {
     const entity = await this.repository.findOne({
       where: { id } as FindOptionsWhere<Entity>,
+      ...options,
     });
     if (!entity) throw new Error(`Entity with id:${id} was not found`);
     return entity;

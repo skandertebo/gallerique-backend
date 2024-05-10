@@ -94,6 +94,13 @@ export class AuctionResolver {
   }
 
   @ResolveField()
+  async owner(@Parent() auction: Auction): Promise<User> {
+    return (
+      await this.auctionService.findOne(auction.id, { relations: ['owner'] })
+    )?.owner;
+  }
+
+  @ResolveField()
   async bids(
     @Parent() auction: Auction,
     @Args('limit', { nullable: true, defaultValue: 10 }) limit: number,
