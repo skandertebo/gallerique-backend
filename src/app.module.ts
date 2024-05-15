@@ -1,5 +1,4 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { AzureStorageModule } from '@nestjs/azure-storage';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -24,6 +23,8 @@ import { StripeModule } from './stripe/stripe.module';
 import User from './user/user.entity';
 import UserModule from './user/user.module';
 import { WebSocketManagerGateway } from './websocket-manager/websocket.gateway';
+import { FileModule } from './File/file.module';
+import { FileUpload } from './File/fileUpload.entity';
 dotenv.config();
 @Module({
   imports: [
@@ -48,14 +49,11 @@ dotenv.config();
         Bid,
         Auction,
         Payment,
+        FileUpload,
       ],
       synchronize: true,
     }),
-    AzureStorageModule.withConfig({
-      sasKey: process.env.AZURE_STORAGE_SAS_KEY,
-      accountName: process.env.AZURE_STORAGE_ACCOUNT_NAME,
-      containerName: process.env.AZURE_STORAGE_CONTAINER_NAME,
-    }),
+
     UserModule,
     AuthModule,
     NotificationsModule,
@@ -64,6 +62,7 @@ dotenv.config();
     PaymentModule,
     ConfigModule.forRoot(),
     AuctionModule,
+    FileModule,
     EventEmitterModule.forRoot(),
   ],
   controllers: [AppController],
