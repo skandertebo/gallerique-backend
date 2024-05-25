@@ -8,9 +8,15 @@ import UserModule from 'src/user/user.module';
 import { Bid } from './entities/bid.entity';
 
 import { ChatModule } from 'src/chat/chat.module';
+import { SchedulerModule } from 'src/Scheduler/scheduler.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Auction, Bid]), UserModule, ChatModule],
+  imports: [
+    TypeOrmModule.forFeature([Auction, Bid]),
+    UserModule,
+    ChatModule,
+    SchedulerModule,
+  ],
   providers: [AuctionResolver, AuctionService, BidService],
   exports: [AuctionService, BidService],
 })

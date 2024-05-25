@@ -84,7 +84,7 @@ export class AuctionResolver {
 
   @Mutation(() => Auction)
   endAuction(@Args('id', { type: () => Int }) id: number) {
-    return this.auctionService.endAuction(id);
+    return this.auctionService.handleAuctionEnd(id);
   }
 
   @Mutation(() => Boolean)

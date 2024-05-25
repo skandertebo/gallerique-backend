@@ -7,6 +7,7 @@ import User from '../user/user.entity';
 import { CreateBidInput } from './dto/create-bid.input';
 import { AuctionStatus } from './entities/auction.entity';
 import { Bid } from './entities/bid.entity';
+import { SchedulerService } from 'src/Scheduler/scheduler.service';
 
 @Injectable()
 export class BidService extends GenericService<Bid> {
@@ -14,6 +15,7 @@ export class BidService extends GenericService<Bid> {
     @InjectRepository(Bid)
     private readonly bidRepository: Repository<Bid>,
     private readonly auctionService: AuctionService,
+    private readonly scheduler: SchedulerService,
   ) {
     super(bidRepository);
   }
@@ -38,6 +40,18 @@ export class BidService extends GenericService<Bid> {
     if (createBidInput.price <= auction.currentPrice) {
       throw new Error('Bid price must be higher than the current price');
     }
+    //Restart the end job if the bid is in the last 10 seconds
+    const endTime = new Date(auction.endTime);
+    const timeLeft = endTime.getTime() - new Date().getTime();
+    if (timeLeft <= 10000) {
+      const extendedTime = new Date(endTime.getTime() + 10500);
+      this.scheduler.modifyJob(
+        `auction-${auction.id}-end`,
+        extendedTime,
+        this.auctionService.handleAuctionEnd(auction.id),
+      );
+    }
+
     auction.currentPrice = createBidInput.price;
     // Save changes to the database
     await this.auctionService.save(auction);

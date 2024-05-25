@@ -25,10 +25,12 @@ import UserModule from './user/user.module';
 import { WebSocketManagerGateway } from './websocket-manager/websocket.gateway';
 import { FileModule } from './File/file.module';
 import { FileUpload } from './File/fileUpload.entity';
+import { ScheduleModule } from '@nestjs/schedule';
 dotenv.config();
 @Module({
   imports: [
     HelloWorldModule,
+    ScheduleModule.forRoot(),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       autoSchemaFile: true,
       driver: ApolloDriver,
