@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FileUpload } from './fileUpload.entity';
+import GenericService from 'src/generic/generic.service';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import GenericService from 'src/generic/generic.service';
+import FileUpload from './file-upload.entity';
 
 @Injectable()
 export class FileService extends GenericService<FileUpload> {

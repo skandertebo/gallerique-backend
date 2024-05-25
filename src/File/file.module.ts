@@ -1,10 +1,11 @@
+import { AzureStorageModule } from '@nestjs/azure-storage';
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import * as dotenv from 'dotenv';
+import FileUpload from './file-upload.entity';
 import { FileController } from './file.controller';
 import { FileService } from './file.service';
-import { AzureStorageModule } from '@nestjs/azure-storage';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { FileUpload } from './fileUpload.entity';
-
+dotenv.config();
 @Module({
   imports: [
     TypeOrmModule.forFeature([FileUpload]),
