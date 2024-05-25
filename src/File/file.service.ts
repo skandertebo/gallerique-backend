@@ -1,23 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FileUpload } from './fileUpload.entity';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import GenericService from 'src/generic/generic.service';
 
 @Injectable()
-export class FileService {
-  private readonly fileUploadRepository: Repository<FileUpload>;
-
+export class FileService extends GenericService<FileUpload> {
   constructor(
     @InjectRepository(FileUpload)
-    private readonly repository: Repository<FileUpload>,
+    private readonly fileUploadRepository: Repository<FileUpload>,
   ) {
-    this.fileUploadRepository = repository;
+    super(fileUploadRepository);
   }
-  createUploadToken(fileUrl: string) {
+  async createUploadToken(fileUrl: string) {
     const token = uuidv4();
-    const entity = this.repository.create({ fileUrl, token });
-    this.repository.save(entity);
+    await this.create({ fileUrl, token });
     return token;
+  }
+
+  async getFilePath(token: string) {
+    const entity = await this.fileUploadRepository.findOne({
+      where: { token },
+    });
+    if (!entity) throw new NotFoundException('The token does not exist!');
+    return entity.fileUrl;
   }
 }

@@ -30,7 +30,7 @@ export class Auction extends GenericEntity {
 
   @Field()
   @Column({ default: '' })
-  picture: string;
+  image: string;
 
   @Field()
   @Column()
@@ -53,7 +53,7 @@ export class Auction extends GenericEntity {
   endTime!: string;
 
   @Field()
-  @Column({ default: AuctionStatus.OPEN, type: 'varchar' })
+  @Column({ default: AuctionStatus.PENDING, type: 'varchar' })
   status!: AuctionStatus;
 
   @Field(() => [Bid])

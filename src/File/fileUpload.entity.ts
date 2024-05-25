@@ -1,11 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import GenericEntity from 'src/generic/generic.entity';
+import { Entity, Column, Unique } from 'typeorm';
 
 @Entity()
-export class FileUpload {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class FileUpload extends GenericEntity {
   @Column()
+  @Unique('unique_token', ['token'])
   token: string;
 
   @Column()

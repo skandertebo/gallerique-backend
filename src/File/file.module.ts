@@ -16,5 +16,6 @@ import { FileUpload } from './fileUpload.entity';
   ],
   controllers: [FileController],
   providers: [FileService],
+  exports: [FileService],
 })
 export class FileModule {}
