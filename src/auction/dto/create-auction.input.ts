@@ -14,4 +14,7 @@ export class CreateAuctionInput {
 
   @Field()
   startDate: string;
+
+  @Field()
+  fileUploadToken: string;
 }
