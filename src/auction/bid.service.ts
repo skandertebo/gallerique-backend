@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import GenericServiceWithObservable from 'src/generic/genericWithObservable.service';
 import { Repository } from 'typeorm';
 import { AuctionService } from '../auction/auction.service';
-import GenericService from '../generic/generic.service';
 import User from '../user/user.entity';
 import { CreateBidInput } from './dto/create-bid.input';
 import { AuctionStatus } from './entities/auction.entity';
 import { Bid } from './entities/bid.entity';
 
 @Injectable()
-export class BidService extends GenericService<Bid> {
+export class BidService extends GenericServiceWithObservable<Bid> {
   constructor(
     @InjectRepository(Bid)
     private readonly bidRepository: Repository<Bid>,
