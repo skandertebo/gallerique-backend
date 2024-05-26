@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Subject } from 'rxjs';
+import User from 'src/user/user.entity';
 
 @Injectable()
 export default class NotificationsService extends GenericService<
@@ -53,13 +54,15 @@ export default class NotificationsService extends GenericService<
   }
 
   async findNotificationsByUser(
-    userId: number,
+    user: User,
     page: number = 1,
     limit: number = 10,
   ): Promise<Notification[]> {
     const queryBuilder = this.notificationRepository
       .createQueryBuilder('notification')
-      .innerJoin('notification.users', 'user', 'user.id = :userId', { userId })
+      .innerJoin('notification.users', 'user', 'user.id = :userId', {
+        userId: user.id,
+      })
       .orderBy('notification.createdAt', 'DESC');
 
     return this.paginate(queryBuilder, page, limit);
