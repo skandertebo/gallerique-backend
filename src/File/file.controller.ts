@@ -21,8 +21,10 @@ export class FileController {
   @UseInterceptors(
     AzureStorageFileInterceptor('file', imageUploadValidationOptions),
   )
-  uploadFile(@UploadedFile() file: UploadedFileMetadata) {
-    const token = this.fileUploadService.createUploadToken(file.storageUrl);
+  async uploadFile(@UploadedFile() file: UploadedFileMetadata) {
+    const token = await this.fileUploadService.createUploadToken(
+      file.storageUrl,
+    );
     return { token };
   }
 }

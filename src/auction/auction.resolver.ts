@@ -20,6 +20,7 @@ import { CreateBidInput } from './dto/create-bid.input';
 import { Auction } from './entities/auction.entity';
 import { Bid } from './entities/bid.entity';
 import AuctionOwnerGuard from './guards/auction-owner.guard';
+import { UpdateAuctionInput } from './dto/update-auction.input';
 
 @UseGuards(JwtAuthGuard)
 @Resolver(() => Auction)
@@ -35,10 +36,12 @@ export class AuctionResolver {
     @Args('createAuctionInput') createAuctionInput: CreateAuctionInput,
     @GetUser() user: User,
   ) {
-    return this.auctionService.createAuction({
-      ...createAuctionInput,
-      owner: user,
-    });
+    return this.auctionService.createAuction(
+      {
+        ...createAuctionInput,
+      },
+      user,
+    );
   }
 
   @Query(() => [Auction], { name: 'auctions' })
@@ -72,15 +75,12 @@ export class AuctionResolver {
     return this.auctionService.joinAuction(id, user.id);
   }
 
-  // @Mutation(() => Auction)
-  // updateAuction(
-  //   @Args('updateAuctionInput') updateAuctionInput: UpdateAuctionInput,
-  // ) {
-  //   return this.auctionService.update(
-  //     updateAuctionInput.id,
-  //     updateAuctionInput,
-  //   );
-  // }
+  @Mutation(() => Auction)
+  updateAuction(
+    @Args('updateAuctionInput') updateAuctionInput: UpdateAuctionInput,
+  ) {
+    return this.auctionService.updateAuction(updateAuctionInput);
+  }
 
   @Mutation(() => Auction)
   endAuction(@Args('id', { type: () => Int }) id: number) {

@@ -9,6 +9,7 @@ import { Bid } from './entities/bid.entity';
 
 import { ChatModule } from 'src/chat/chat.module';
 import { SchedulerModule } from 'src/Scheduler/scheduler.module';
+import { FileModule } from 'src/File/file.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { SchedulerModule } from 'src/Scheduler/scheduler.module';
     UserModule,
     ChatModule,
     SchedulerModule,
+    FileModule,
   ],
   providers: [AuctionResolver, AuctionService, BidService],
   exports: [AuctionService, BidService],

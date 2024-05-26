@@ -1,4 +1,5 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConversationService } from 'src/chat/conversation.service';
 import GenericServiceWithObservable from 'src/generic/genericWithObservable.service';
@@ -7,6 +8,10 @@ import { UserService } from '../user/user.service';
 import { Auction, AuctionStatus } from './entities/auction.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SchedulerService } from 'src/Scheduler/scheduler.service';
+import { FileService } from 'src/File/file.service';
+import { CreateAuctionInput } from './dto/create-auction.input';
+import User from 'src/user/user.entity';
+import { UpdateAuctionInput } from './dto/update-auction.input';
 
 @Injectable()
 export class AuctionService extends GenericServiceWithObservable<Auction> {
@@ -15,8 +20,10 @@ export class AuctionService extends GenericServiceWithObservable<Auction> {
     private readonly auctionRepository: Repository<Auction>,
     private readonly userService: UserService,
     private readonly conversationService: ConversationService,
+
     private eventEmitter: EventEmitter2,
     private scheduler: SchedulerService,
+    private readonly fileService: FileService,
   ) {
     super(auctionRepository);
     // This is implemented in case the server restarts and we lose in-memory cron jobs
@@ -45,19 +52,26 @@ export class AuctionService extends GenericServiceWithObservable<Auction> {
       }
     });
   }
-  async createAuction(auction: Partial<Auction>) {
-    const startDate = new Date(auction.startDate);
+  async createAuction(data: CreateAuctionInput, owner: User) {
+    const startDate = new Date(data.startDate);
     const delay = startDate.getTime() - new Date().getTime();
     if (delay < 0)
       throw new BadRequestException('Start date should be a future datetime');
-    auction = {
-      ...auction,
+
+    const filePath = await this.fileService.getFilePath(data.fileUploadToken);
+    delete data.fileUploadToken;
+    const auctionData = {
+      ...data,
       //5 hours from startDate
       //TODO: Config should be centralised
-      endTime: new Date(startDate.getTime() + 5 * 60 * 60 * 1000).toISOString(),
-      currentPrice: auction.startPrice,
+      endTime: new Date(
+        new Date(data.startDate).getTime() + 5 * 60 * 60 * 1000,
+      ).toISOString(),
+      currentPrice: data.startPrice,
+      image: filePath,
+      owner,
     };
-    const newAuction = await this.create(auction);
+    const newAuction = await this.create(auctionData);
 
     //creating a cron job for the start of the auction
     //TODO: add in update
@@ -69,6 +83,31 @@ export class AuctionService extends GenericServiceWithObservable<Auction> {
     await this.conversationService.createAuctionConversation(newAuction);
 
     return newAuction;
+  }
+
+  async updateAuction(updateData: UpdateAuctionInput) {
+    const id = updateData.id;
+    delete updateData.id;
+    const auction = await this.findOne(id);
+    if (auction.status != AuctionStatus.PENDING)
+      throw new ForbiddenException('Auction cannot be modified anymore!');
+
+    const filePath = await this.fileService.getFilePath(
+      updateData.fileUploadToken,
+    );
+    delete updateData.fileUploadToken;
+
+    const auctionData = {
+      ...updateData,
+      //5 hours from startDate
+      endTime: new Date(
+        new Date(updateData.startDate).getTime() + 5 * 60 * 60 * 1000,
+      ).toISOString(),
+      currentPrice: updateData.startPrice,
+      image: filePath,
+    };
+
+    return await this.update(id, auctionData);
   }
 
   async isOwner(auctionId: number, userId: number) {
