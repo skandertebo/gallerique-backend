@@ -25,6 +25,7 @@ import { StripeModule } from './stripe/stripe.module';
 import User from './user/user.entity';
 import UserModule from './user/user.module';
 import { WebSocketManagerGateway } from './websocket-manager/websocket.gateway';
+import { MutexManagerModule } from './mutex-manager/mutex-manager.module';
 dotenv.config();
 @Module({
   imports: [
@@ -64,6 +65,7 @@ dotenv.config();
     AuctionModule,
     FileModule,
     EventEmitterModule.forRoot(),
+    MutexManagerModule,
   ],
   controllers: [AppController],
   providers: [AppService, WebSocketManagerGateway],
