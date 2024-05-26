@@ -54,6 +54,9 @@ export class BidService extends GenericServiceWithObservable<Bid> {
     await this.auctionService.save(auction);
     const bid = this.bidRepository.create({
       ...createBidInput,
+      auction: {
+        id: auction.id,
+      },
       owner: user,
     });
     return this.bidRepository.save(bid);
