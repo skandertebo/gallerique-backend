@@ -5,6 +5,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
+import FileUpload from './File/file-upload.entity';
+import { FileModule } from './File/file.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuctionModule } from './auction/auction.module';
@@ -23,8 +25,7 @@ import { StripeModule } from './stripe/stripe.module';
 import User from './user/user.entity';
 import UserModule from './user/user.module';
 import { WebSocketManagerGateway } from './websocket-manager/websocket.gateway';
-import { FileModule } from './File/file.module';
-import { FileUpload } from './File/fileUpload.entity';
+import { MutexManagerModule } from './mutex-manager/mutex-manager.module';
 dotenv.config();
 @Module({
   imports: [
@@ -64,6 +65,7 @@ dotenv.config();
     AuctionModule,
     FileModule,
     EventEmitterModule.forRoot(),
+    MutexManagerModule,
   ],
   controllers: [AppController],
   providers: [AppService, WebSocketManagerGateway],

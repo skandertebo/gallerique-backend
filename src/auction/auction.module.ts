@@ -8,9 +8,17 @@ import UserModule from 'src/user/user.module';
 import { Bid } from './entities/bid.entity';
 
 import { ChatModule } from 'src/chat/chat.module';
+import { FileModule } from 'src/File/file.module';
+import { MutexManagerModule } from 'src/mutex-manager/mutex-manager.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Auction, Bid]), UserModule, ChatModule],
+  imports: [
+    TypeOrmModule.forFeature([Auction, Bid]),
+    UserModule,
+    ChatModule,
+    FileModule,
+    MutexManagerModule,
+  ],
   providers: [AuctionResolver, AuctionService, BidService],
   exports: [AuctionService, BidService],
 })
