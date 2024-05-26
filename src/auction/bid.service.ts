@@ -7,6 +7,7 @@ import User from '../user/user.entity';
 import { CreateBidInput } from './dto/create-bid.input';
 import { AuctionStatus } from './entities/auction.entity';
 import { Bid } from './entities/bid.entity';
+import { MutexService } from 'src/mutex-manager/mutex.service';
 
 @Injectable()
 export class BidService extends GenericService<Bid> {
@@ -14,11 +15,21 @@ export class BidService extends GenericService<Bid> {
     @InjectRepository(Bid)
     private readonly bidRepository: Repository<Bid>,
     private readonly auctionService: AuctionService,
+    private readonly mutexService: MutexService,
   ) {
     super(bidRepository);
   }
 
   async bid(createBidInput: CreateBidInput, user: User): Promise<Bid> {
+    const release = await this.mutexService.lock(createBidInput.auctionId);
+    try {
+      return await this.bidInMutex(createBidInput, user);
+    } finally {
+      release();
+    }
+  }
+
+  async bidInMutex(createBidInput: CreateBidInput, user: User): Promise<Bid> {
     const auction = await this.auctionService.findOne(createBidInput.auctionId);
     if (auction.status !== AuctionStatus.OPEN) {
       throw new Error('The auction is not open for bidding');
