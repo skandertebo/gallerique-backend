@@ -3,11 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuctionService } from '../auction/auction.service';
 import GenericService from '../generic/generic.service';
+import { MutexService } from '../mutex-manager/mutex-manager.service';
 import User from '../user/user.entity';
 import { CreateBidInput } from './dto/create-bid.input';
-import { AuctionStatus } from './entities/auction.entity';
 import { Bid } from './entities/bid.entity';
-import { MutexService } from 'src/mutex-manager/mutex.service';
 
 @Injectable()
 export class BidService extends GenericService<Bid> {
@@ -31,9 +30,10 @@ export class BidService extends GenericService<Bid> {
 
   async bidInMutex(createBidInput: CreateBidInput, user: User): Promise<Bid> {
     const auction = await this.auctionService.findOne(createBidInput.auctionId);
-    if (auction.status !== AuctionStatus.OPEN) {
-      throw new Error('The auction is not open for bidding');
-    }
+    // TODO: Uncomment the following code after implementing the auction status
+    // if (auction.status !== AuctionStatus.OPEN) {
+    //   throw new Error('The auction is not open for bidding');
+    // }
     const hasUserJoinedAuction = this.auctionService.hasUserJoinedAuction(
       createBidInput.auctionId,
       user.id,

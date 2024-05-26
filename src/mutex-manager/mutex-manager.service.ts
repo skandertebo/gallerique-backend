@@ -11,6 +11,10 @@ export class MutexService {
   private mutexes: Map<number, MutexMapInterafce>;
   constructor() {
     this.mutexes = new Map();
+
+    setInterval(() => {
+      this.cleanUp(1000 * 60 * 60);
+    }, 10000);
   }
 
   public getMutex(auctioId: number): MutexMapInterafce {

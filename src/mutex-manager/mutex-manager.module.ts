@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { MutexService } from './mutex.service';
+import { MutexService } from './mutex-manager.service';
 
 @Module({
   providers: [MutexService],
