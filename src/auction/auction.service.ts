@@ -86,6 +86,13 @@ export class AuctionService extends GenericServiceWithObservable<Auction> {
   }
 
   async updateAuction(updateData: UpdateAuctionInput) {
+    if (updateData.startDate) {
+      const startDate = new Date(updateData.startDate);
+      const delay = startDate.getTime() - new Date().getTime();
+      if (delay < 0)
+        throw new BadRequestException('Start date should be a future datetime');
+    }
+
     const id = updateData.id;
     delete updateData.id;
     const auction = await this.findOne(id);
@@ -107,7 +114,18 @@ export class AuctionService extends GenericServiceWithObservable<Auction> {
       image: filePath,
     };
 
-    return await this.update(id, auctionData);
+    const updatedAuction = await this.update(id, auctionData);
+    if (updateData.startDate) {
+      this.scheduler.addJob(
+        `auction-${auction.id}-start`,
+        new Date(updateData.startDate),
+        () => {
+          this.handleAuctionStart(auction.id);
+        },
+      );
+    }
+
+    return updatedAuction;
   }
 
   async isOwner(auctionId: number, userId: number) {
