@@ -10,14 +10,16 @@ export class SSEController {
   constructor(private readonly notificationService: NotificationsService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Sse('notifications')
+  @Sse('listen')
   getEvents(@GetUser() user: User): Observable<any> {
     return this.notificationService.getNotificationStream().pipe(
       filter((Notification) => Notification.userIds.includes(user.id)),
       map((Notification) => ({
-        content: Notification.content,
-        title: Notification.title,
-        type: Notification.type,
+        data: {
+          content: Notification.content,
+          title: Notification.title,
+          type: Notification.type,
+        },
       })),
     );
   }

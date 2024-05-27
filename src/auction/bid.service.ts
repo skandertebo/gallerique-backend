@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SchedulerService } from 'src/Scheduler/scheduler.service';
 import GenericServiceWithObservable from 'src/generic/genericWithObservable.service';
 import { Repository } from 'typeorm';
 import { AuctionService } from '../auction/auction.service';
@@ -15,6 +16,7 @@ export class BidService extends GenericServiceWithObservable<Bid> {
     private readonly bidRepository: Repository<Bid>,
     private readonly auctionService: AuctionService,
     private readonly mutexService: MutexService,
+    private readonly scheduler: SchedulerService,
   ) {
     super(bidRepository);
   }
@@ -49,6 +51,18 @@ export class BidService extends GenericServiceWithObservable<Bid> {
     if (createBidInput.price <= auction.currentPrice) {
       throw new Error('Bid price must be higher than the current price');
     }
+    //Restart the end job if the bid is in the last 10 seconds
+    const endTime = new Date(auction.endTime);
+    const timeLeft = endTime.getTime() - new Date().getTime();
+    if (timeLeft <= 10000) {
+      const extendedTime = new Date(endTime.getTime() + 10500);
+      this.scheduler.modifyJob(
+        `auction-${auction.id}-end`,
+        extendedTime,
+        this.auctionService.handleAuctionEnd(auction.id),
+      );
+    }
+
     auction.currentPrice = createBidInput.price;
     // Save changes to the database
     await this.auctionService.save(auction);
@@ -71,7 +85,8 @@ export class BidService extends GenericServiceWithObservable<Bid> {
       .createQueryBuilder('bid')
       .leftJoinAndSelect('bid.owner', 'owner')
       .where('bid.auctionId = :auctionId', { auctionId })
-      .orderBy('bid.createdAt', 'ASC');
+      .leftJoinAndSelect('bid.auction', 'auction')
+      .orderBy('bid.price', 'DESC');
 
     return await this.paginate(queryBuilder, page, limit);
   }

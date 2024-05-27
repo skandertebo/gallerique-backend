@@ -17,6 +17,7 @@ import { ChatModule } from './chat/chat.module';
 import Conversation from './chat/entities/conversation.entity';
 import Message from './chat/entities/message.entity';
 import HelloWorldModule from './hello-world/hello-world.module';
+import { MutexManagerModule } from './mutex-manager/mutex-manager.module';
 import { Notification } from './notifications/entities/notification.entity';
 import { NotificationsModule } from './notifications/notifications.module';
 import Payment from './payment/payment.entity';
@@ -25,11 +26,14 @@ import { StripeModule } from './stripe/stripe.module';
 import User from './user/user.entity';
 import UserModule from './user/user.module';
 import { WebSocketManagerGateway } from './websocket-manager/websocket.gateway';
-import { MutexManagerModule } from './mutex-manager/mutex-manager.module';
+
+import { ScheduleModule } from '@nestjs/schedule';
+
 dotenv.config();
 @Module({
   imports: [
     HelloWorldModule,
+    ScheduleModule.forRoot(),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       autoSchemaFile: true,
       driver: ApolloDriver,

@@ -161,6 +161,7 @@ export class WebSocketManagerGateway
       },
       userObj,
     );
+    auction.currentPrice = bid.price;
     bid.auction = auction;
     this.bidService.emit({
       scope: 'auction.bid.send',
