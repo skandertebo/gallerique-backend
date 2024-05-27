@@ -186,6 +186,12 @@ export class AuctionService extends GenericServiceWithObservable<Auction> {
       scope: 'auction.end',
       payload: updatedAuction,
     });
+    this.eventEmitter.emit('NotificationEvent', {
+      userIds: [auction.winner.id],
+      content: `Congratulations You won the auction ${auction.title}!`,
+      title: 'Auction End',
+      type: 'auction_end',
+    });
   }
 
   async getAuctionsByUser(userId: number) {
