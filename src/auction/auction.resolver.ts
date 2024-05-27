@@ -17,10 +17,10 @@ import { AuctionService } from './auction.service';
 import { BidService } from './bid.service';
 import { CreateAuctionInput } from './dto/create-auction.input';
 import { CreateBidInput } from './dto/create-bid.input';
+import { UpdateAuctionInput } from './dto/update-auction.input';
 import { Auction } from './entities/auction.entity';
 import { Bid } from './entities/bid.entity';
 import AuctionOwnerGuard from './guards/auction-owner.guard';
-import { UpdateAuctionInput } from './dto/update-auction.input';
 
 @UseGuards(JwtAuthGuard)
 @Resolver(() => Auction)
@@ -93,12 +93,13 @@ export class AuctionResolver {
     return this.auctionService.delete(id);
   }
 
-  @Mutation(() => Auction)
+  @Mutation(() => Bid)
   async createBid(
     @Args('createBidInput') createBidInput: CreateBidInput,
     @GetUser() user: User,
   ) {
-    await this.bidService.bid(createBidInput, user);
+    const res = await this.bidService.bid(createBidInput, user);
+    return res;
   }
 
   @ResolveField(() => [User])

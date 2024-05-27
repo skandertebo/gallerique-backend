@@ -10,6 +10,7 @@ import { Bid } from './entities/bid.entity';
 import { ChatModule } from 'src/chat/chat.module';
 import { SchedulerModule } from 'src/Scheduler/scheduler.module';
 import { FileModule } from 'src/File/file.module';
+import { MutexManagerModule } from 'src/mutex-manager/mutex-manager.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { FileModule } from 'src/File/file.module';
     ChatModule,
     SchedulerModule,
     FileModule,
+    MutexManagerModule,
   ],
   providers: [AuctionResolver, AuctionService, BidService],
   exports: [AuctionService, BidService],

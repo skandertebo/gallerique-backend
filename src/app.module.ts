@@ -17,6 +17,7 @@ import { ChatModule } from './chat/chat.module';
 import Conversation from './chat/entities/conversation.entity';
 import Message from './chat/entities/message.entity';
 import HelloWorldModule from './hello-world/hello-world.module';
+import { MutexManagerModule } from './mutex-manager/mutex-manager.module';
 import { Notification } from './notifications/entities/notification.entity';
 import { NotificationsModule } from './notifications/notifications.module';
 import Payment from './payment/payment.entity';
@@ -68,6 +69,7 @@ dotenv.config();
     AuctionModule,
     FileModule,
     EventEmitterModule.forRoot(),
+    MutexManagerModule,
   ],
   controllers: [AppController],
   providers: [AppService, WebSocketManagerGateway],
