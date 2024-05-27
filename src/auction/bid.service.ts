@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SchedulerService } from 'src/Scheduler/scheduler.service';
+import GenericServiceWithObservable from 'src/generic/genericWithObservable.service';
 import { Repository } from 'typeorm';
 import { AuctionService } from '../auction/auction.service';
-import GenericService from '../generic/generic.service';
 import { MutexService } from '../mutex-manager/mutex-manager.service';
 import User from '../user/user.entity';
 import { CreateBidInput } from './dto/create-bid.input';
 import { Bid } from './entities/bid.entity';
 
 @Injectable()
-export class BidService extends GenericService<Bid> {
+export class BidService extends GenericServiceWithObservable<Bid> {
   constructor(
     @InjectRepository(Bid)
     private readonly bidRepository: Repository<Bid>,
@@ -68,6 +68,9 @@ export class BidService extends GenericService<Bid> {
     await this.auctionService.save(auction);
     const bid = this.bidRepository.create({
       ...createBidInput,
+      auction: {
+        id: auction.id,
+      },
       owner: user,
     });
     return this.bidRepository.save(bid);
