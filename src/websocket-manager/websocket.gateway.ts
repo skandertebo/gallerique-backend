@@ -98,10 +98,30 @@ export class WebSocketManagerGateway
         .subscribe((bid) => {
           client.emit('auction.bid.send', bid);
         });
+
+      const auctionSubscription = this.auctionService.observable
+        .pipe(
+          filterByPromise(async (v) => {
+            const auction = v.payload;
+            if (!auction) return false;
+            const isMember = await this.auctionService.hasUserJoinedAuction(
+              auction.id,
+              user.id,
+            );
+            return isMember;
+          }),
+        )
+        .subscribe((auction) => {
+          client.emit(auction.scope, auction);
+        });
       this.clients.add({
         socket: client,
         userId: user.id,
-        observableSubscriptions: [subscription, bidSubscription],
+        observableSubscriptions: [
+          subscription,
+          bidSubscription,
+          auctionSubscription,
+        ],
       });
     } catch (e) {
       client.disconnect();
