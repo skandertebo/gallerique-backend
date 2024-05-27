@@ -15,7 +15,9 @@ export default class Message extends GenericEntity {
   @ManyToOne(() => User, { eager: true })
   @Field(() => User, { nullable: false })
   sender: User;
-  @ManyToOne(() => Conversation, (conversation) => conversation.messages)
+  @ManyToOne(() => Conversation, (conversation) => conversation.messages, {
+    onDelete: 'CASCADE',
+  })
   @Field(() => Conversation, { nullable: false })
   conversation: Conversation;
 }

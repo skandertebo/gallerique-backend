@@ -167,7 +167,23 @@ export class AuctionService extends GenericServiceWithObservable<Auction> {
 
   async handleAuctionEnd(auctionId: number) {
     //check if the end time has passed
-    const auction = await this.findOne(auctionId);
+    const auction = await this.findOne(auctionId, {
+      relations: ['owner'],
+    });
+    const topBid = await this.auctionRepository.manager.query(
+      'SELECT * FROM bid WHERE auctionId = ? ORDER BY price DESC LIMIT 1',
+      [auctionId],
+    );
+    if (topBid.length == 0) {
+      auction.status = AuctionStatus.CLOSED;
+      await this.update(auctionId, auction);
+      this.emit({
+        scope: 'auction.end',
+        payload: auction,
+      });
+      return;
+    }
+    const topBidder = await this.userService.findOne(topBid[0].ownerId);
     const endTime = new Date(auction.endTime);
     if (new Date() < endTime) {
       throw new Error('The auction has not ended yet');
@@ -178,7 +194,7 @@ export class AuctionService extends GenericServiceWithObservable<Auction> {
     owner.credit += auction.currentPrice;
     await this.userService.save(owner);
     // Update the winner's credit
-    auction.winner = auction.bids[auction.bids.length - 1].owner;
+    auction.winner = topBidder;
     auction.winner.credit -= auction.currentPrice;
     await this.userService.save(auction.winner);
     const updatedAuction = await this.update(auctionId, auction);

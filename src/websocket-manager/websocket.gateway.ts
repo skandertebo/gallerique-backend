@@ -104,6 +104,7 @@ export class WebSocketManagerGateway
           filterByPromise(async (v) => {
             const auction = v.payload;
             if (!auction) return false;
+
             const isMember = await this.auctionService.hasUserJoinedAuction(
               auction.id,
               user.id,
@@ -112,7 +113,7 @@ export class WebSocketManagerGateway
           }),
         )
         .subscribe((auction) => {
-          client.emit(auction.scope, auction);
+          client.emit('auction.end', auction);
         });
       this.clients.add({
         socket: client,

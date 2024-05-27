@@ -12,7 +12,7 @@ export class Bid extends GenericEntity {
   price!: number;
 
   @Field(() => Auction)
-  @ManyToOne(() => Auction, (auction) => auction.bids)
+  @ManyToOne(() => Auction, (auction) => auction.bids, { onDelete: 'CASCADE' })
   auction!: Auction;
 
   @Field(() => User)

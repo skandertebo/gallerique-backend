@@ -38,6 +38,7 @@ export default class Conversation extends GenericEntity {
   messages: Message[];
   @OneToOne(() => Auction, (auction) => auction.conversation, {
     nullable: true,
+    onDelete: 'CASCADE',
   })
   @JoinColumn()
   @Field(() => Auction)
