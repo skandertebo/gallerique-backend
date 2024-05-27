@@ -121,7 +121,7 @@ export class AuctionResolver {
   @ResolveField()
   async bids(
     @Parent() auction: Auction,
-    @Args('limit', { nullable: true, defaultValue: 10 }) limit: number,
+    @Args('limit', { nullable: true, defaultValue: 100 }) limit: number,
   ): Promise<Bid[]> {
     return this.bidService.getByAuction(auction.id, 1, limit);
   }

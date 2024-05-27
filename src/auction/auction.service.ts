@@ -1,17 +1,20 @@
-import { BadRequestException } from '@nestjs/common';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FileService } from 'src/File/file.service';
+import { SchedulerService } from 'src/Scheduler/scheduler.service';
 import { ConversationService } from 'src/chat/conversation.service';
 import GenericServiceWithObservable from 'src/generic/genericWithObservable.service';
+import User from 'src/user/user.entity';
 import { LessThanOrEqual, MoreThan, Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
-import { Auction, AuctionStatus } from './entities/auction.entity';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { SchedulerService } from 'src/Scheduler/scheduler.service';
-import { FileService } from 'src/File/file.service';
 import { CreateAuctionInput } from './dto/create-auction.input';
-import User from 'src/user/user.entity';
 import { UpdateAuctionInput } from './dto/update-auction.input';
+import { Auction, AuctionStatus } from './entities/auction.entity';
 
 @Injectable()
 export class AuctionService extends GenericServiceWithObservable<Auction> {
@@ -75,9 +78,9 @@ export class AuctionService extends GenericServiceWithObservable<Auction> {
 
     //creating a cron job for the start of the auction
     //TODO: add in update
-    this.scheduler.addJob(`auction-${newAuction.id}-start`, startDate, () =>
-      this.handleAuctionStart(newAuction.id),
-    );
+    this.scheduler.addJob(`auction-${newAuction.id}-start`, startDate, () => {
+      this.handleAuctionStart(newAuction.id);
+    });
 
     //create conversation for the auction
     await this.conversationService.createAuctionConversation(newAuction);
@@ -144,8 +147,8 @@ export class AuctionService extends GenericServiceWithObservable<Auction> {
 
     if (auction) {
       const userIds = auction.members.map((member) => member.id);
-      this.eventEmitter.emit('notification.event', {
-        userIds: [userIds],
+      this.eventEmitter.emit('NotificationEvent', {
+        userIds: userIds,
         content: 'The auction you joined has started!',
         title: 'Auction Start',
         type: 'auction_start',

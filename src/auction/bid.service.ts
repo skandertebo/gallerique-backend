@@ -85,7 +85,8 @@ export class BidService extends GenericServiceWithObservable<Bid> {
       .createQueryBuilder('bid')
       .leftJoinAndSelect('bid.owner', 'owner')
       .where('bid.auctionId = :auctionId', { auctionId })
-      .orderBy('bid.createdAt', 'ASC');
+      .leftJoinAndSelect('bid.auction', 'auction')
+      .orderBy('bid.price', 'DESC');
 
     return await this.paginate(queryBuilder, page, limit);
   }
