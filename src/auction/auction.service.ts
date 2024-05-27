@@ -18,6 +18,9 @@ import { Auction, AuctionStatus } from './entities/auction.entity';
 
 @Injectable()
 export class AuctionService extends GenericServiceWithObservable<Auction> {
+  //private readonly ENDTIME_DELAY = 5 * 60 * 60 * 1000; // 5 hours
+  private readonly ENDTIME_DELAY = 2 * 60 * 1000; // 2 minutes
+
   constructor(
     @InjectRepository(Auction)
     private readonly auctionRepository: Repository<Auction>,
@@ -68,7 +71,7 @@ export class AuctionService extends GenericServiceWithObservable<Auction> {
       //5 hours from startDate
       //TODO: Config should be centralised
       endTime: new Date(
-        new Date(data.startDate).getTime() + 5 * 60 * 60 * 1000,
+        new Date(data.startDate).getTime() + this.ENDTIME_DELAY,
       ).toISOString(),
       currentPrice: data.startPrice,
       image: filePath,
@@ -178,7 +181,17 @@ export class AuctionService extends GenericServiceWithObservable<Auction> {
     auction.winner = auction.bids[auction.bids.length - 1].owner;
     auction.winner.credit -= auction.currentPrice;
     await this.userService.save(auction.winner);
-    return this.update(auctionId, auction);
+    const updatedAuction = await this.update(auctionId, auction);
+    this.emit({
+      scope: 'auction.end',
+      payload: updatedAuction,
+    });
+    this.eventEmitter.emit('NotificationEvent', {
+      userIds: [auction.winner.id],
+      content: `Congratulations You won the auction ${auction.title}!`,
+      title: 'Auction End',
+      type: 'auction_end',
+    });
   }
 
   async getAuctionsByUser(userId: number) {
