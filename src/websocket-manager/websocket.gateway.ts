@@ -69,8 +69,12 @@ export class WebSocketManagerGateway
                 conversation.auction.id,
                 user.id,
               );
+              const isOwner = this.auctionService.isAuctionOwner(
+                conversation.auction.id,
+                user.id,
+              );
               const isSender = message.sender?.id === user.id;
-              return isMember || isSender;
+              return isMember || isSender || isOwner;
             } else {
               const conversationMembers =
                 await this.conversationService.getUsers(conversation.id);
@@ -92,7 +96,11 @@ export class WebSocketManagerGateway
               auction.id,
               user.id,
             );
-            return isMember;
+            const isOwner = this.auctionService.isAuctionOwner(
+              auction.id,
+              user.id,
+            );
+            return isMember || isOwner;
           }),
         )
         .subscribe((bid) => {
@@ -109,7 +117,11 @@ export class WebSocketManagerGateway
               auction.id,
               user.id,
             );
-            return isMember;
+            const isOwner = this.auctionService.isAuctionOwner(
+              auction.id,
+              user.id,
+            );
+            return isMember || isOwner;
           }),
         )
         .subscribe((auction) => {

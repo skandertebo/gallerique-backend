@@ -52,16 +52,16 @@ export class BidService extends GenericServiceWithObservable<Bid> {
       throw new Error('Bid price must be higher than the current price');
     }
     //Restart the end job if the bid is in the last 10 seconds
-    const endTime = new Date(auction.endTime);
-    const timeLeft = endTime.getTime() - new Date().getTime();
-    if (timeLeft <= 10000) {
-      const extendedTime = new Date(endTime.getTime() + 10500);
-      this.scheduler.modifyJob(
-        `auction-${auction.id}-end`,
-        extendedTime,
-        this.auctionService.handleAuctionEnd(auction.id),
-      );
-    }
+    // const endTime = new Date(auction.endTime);
+    // const timeLeft = endTime.getTime() - new Date().getTime();
+    // if (timeLeft <= 10000) {
+    //   const extendedTime = new Date(endTime.getTime() + 10500);
+    //   this.scheduler.modifyJob(
+    //     `auction-${auction.id}-end`,
+    //     extendedTime,
+    //     this.auctionService.handleAuctionEnd(auction.id),
+    //   );
+    // }
 
     auction.currentPrice = createBidInput.price;
     // Save changes to the database

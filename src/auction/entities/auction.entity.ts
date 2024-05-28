@@ -64,7 +64,7 @@ export class Auction extends GenericEntity {
   @ManyToOne(() => User, (user) => user.auctions)
   owner!: User;
 
-  @Field(() => User)
+  @Field(() => User, { nullable: true })
   @ManyToOne(() => User)
   winner: User;
 

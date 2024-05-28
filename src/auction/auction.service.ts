@@ -229,6 +229,13 @@ export class AuctionService extends GenericServiceWithObservable<Auction> {
     return !!auction;
   }
 
+  async isAuctionOwner(auctionId: number, userId: number) {
+    const auction = await this.auctionRepository.findOne({
+      where: { id: auctionId, owner: { id: userId } },
+    });
+    return !!auction;
+  }
+
   async joinAuction(auctionId: number, userId: number) {
     const user = await this.userService.findOne(userId);
     const auction = await this.findOne(auctionId, { relations: ['members'] });

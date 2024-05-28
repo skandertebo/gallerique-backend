@@ -111,6 +111,13 @@ export class AuctionResolver {
     ).members;
   }
 
+  @ResolveField(() => User, { nullable: true })
+  async winner(@Parent() auction: Auction): Promise<User> {
+    return (
+      await this.auctionService.findOne(auction.id, { relations: ['winner'] })
+    )?.winner;
+  }
+
   @ResolveField()
   async owner(@Parent() auction: Auction): Promise<User> {
     return (

@@ -15,7 +15,7 @@ export default class GenericService<
   CDTO extends DeepPartial<Entity> = DeepPartial<Entity>,
   UDTO extends DeepPartial<Entity> = DeepPartial<Entity>,
 > {
-  private readonly repository: Repository<Entity>;
+  protected readonly repository: Repository<Entity>;
   constructor(repository: Repository<Entity>) {
     this.repository = repository;
   }
