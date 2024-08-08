@@ -1,9 +1,9 @@
 import { Controller, Sse, UseGuards } from '@nestjs/common';
 import { Observable, filter, map } from 'rxjs';
-import NotificationsService from './notifications.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
 import { GetUser } from 'src/auth/decorators/getUser.decorator';
+import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
 import User from 'src/user/user.entity';
+import NotificationsService from './notifications.service';
 
 @Controller('notifications')
 export class SSEController {
@@ -13,12 +13,12 @@ export class SSEController {
   @Sse('listen')
   getEvents(@GetUser() user: User): Observable<any> {
     return this.notificationService.getNotificationStream().pipe(
-      filter((Notification) => Notification.userIds.includes(user.id)),
-      map((Notification) => ({
+      filter((notification) => notification.userIds.includes(user.id)),
+      map((notification) => ({
         data: {
-          content: Notification.content,
-          title: Notification.title,
-          type: Notification.type,
+          content: notification.content,
+          title: notification.title,
+          type: notification.type,
         },
       })),
     );
