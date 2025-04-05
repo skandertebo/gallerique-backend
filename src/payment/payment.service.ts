@@ -7,6 +7,7 @@ import { EntityNotFoundError, Repository } from 'typeorm';
 import { StripeService } from './../stripe/stripe.service';
 import { TopUpDto } from './dto/topUp.dto';
 import Payment, { PaymentStatus } from './payment.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class PaymentService {
@@ -15,6 +16,7 @@ export class PaymentService {
     private readonly paymentRepository: Repository<Payment>,
     private readonly stripeService: StripeService,
     private readonly userService: UserService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
   async getAllPayments(): Promise<Payment[]> {
     const payments = await this.paymentRepository.find({ relations: ['user'] });
@@ -58,13 +60,19 @@ export class PaymentService {
     const user = paymentObject.user;
     await this.userService.updateUserCredit(
       paymentObject.user.id,
-      user.credit + paymentObject.amount,
+      user.credit + paymentObject.amount / 100,
     );
     await this.paymentRepository.update(
       { id: paymentObject.id },
       { status: PaymentStatus.SUCCESS },
     );
     //todo notify user of successful payment
+    this.eventEmitter.emit('NotificationEvent', {
+      userIds: [paymentObject.user.id],
+      content: 'Your payment was successful',
+      title: 'Payment successful',
+      type: 'payment',
+    });
     return {
       userId: paymentObject.user,
       message: 'Payment successful',
@@ -83,6 +91,12 @@ export class PaymentService {
       { status: PaymentStatus.FAILED },
     );
     //todo notify user of failed payment
+    this.eventEmitter.emit('NotificationEvent', {
+      userIds: [paymentObject.user.id],
+      content: 'Your payment was unsuccessful',
+      title: 'Payment unsuccessful',
+      type: 'payment',
+    });
   }
   handleSignature(signature: string, payload: Buffer) {
     try {
