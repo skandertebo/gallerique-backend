@@ -39,22 +39,13 @@ pipeline {
             }
         }
         
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    // Apply namespace if it doesn't exist
-                    sh 'kubectl create namespace ${KUBE_NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -'
-                    
-                    // Update image in deployment
-                    sh "kubectl set image deployment/gallerique-deployment gallerique=${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG} -n ${KUBE_NAMESPACE}"
-                    
-                    // Apply configurations
-                    sh 'kubectl apply -f k8s/ -n ${KUBE_NAMESPACE}'
-                    
-                    // Wait for rollout to complete
-                    sh 'kubectl rollout status deployment/gallerique-deployment -n ${KUBE_NAMESPACE}'
-                }
-            }
+        stage('Déployer sur Kubernetes') {
+               steps {
+                   script {
+                       sh 'kubectl apply -f deployment.yaml'
+                       sh 'kubectl apply -f service.yaml'
+                   }
+               }
         }
     }
     
@@ -64,11 +55,6 @@ pipeline {
         }
         failure {
             echo 'Pipeline failed!'
-        }
-        always {
-            // Clean up Docker images
-            sh 'docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} || true'
-            sh 'docker rmi ${DOCKER_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG} || true'
         }
     }
 } 
