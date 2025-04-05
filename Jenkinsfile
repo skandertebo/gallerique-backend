@@ -5,6 +5,7 @@ pipeline {
         DOCKER_IMAGE = 'gallerique'
         DOCKER_TAG = "${env.BUILD_NUMBER}"
         KUBE_NAMESPACE = 'gallerique'
+        PATH = "/usr/local/bin:${env.PATH}"
     }
     
     stages {
