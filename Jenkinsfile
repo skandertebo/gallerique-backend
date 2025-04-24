@@ -6,6 +6,7 @@ pipeline {
         DOCKER_TAG = "${env.BUILD_NUMBER}"
         KUBE_NAMESPACE = 'gallerique'
         PATH = "/usr/local/bin:${env.PATH}"
+        HELM_RELEASE = 'gallerique'
     }
     
     stages {
@@ -39,12 +40,21 @@ pipeline {
             }
         }
         
-        stage('Déployer sur Kubernetes') {
-               steps {
-                   script {
-                       sh 'kubectl apply -f k8s/deployment.yaml'
-                   }
-               }
+        stage('Deploy with Helm') {
+            steps {
+                script {
+                    withKubeConfig([credentialsId: 'k8s-creds', serverUrl: '']) {
+                        sh '''
+                            helm upgrade --install ${HELM_RELEASE} gallerique-helm/ \
+                                --namespace ${KUBE_NAMESPACE} \
+                                --set image.repository=${DOCKER_USERNAME}/${DOCKER_IMAGE} \
+                                --set image.tag=${DOCKER_TAG} \
+                                --set mysql.auth.password=${MYSQL_PASSWORD} \
+                                --set mysql.auth.rootPassword=${MYSQL_ROOT_PASSWORD}
+                        '''
+                    }
+                }
+            }
         }
     }
     
