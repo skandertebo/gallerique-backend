@@ -43,8 +43,9 @@ pipeline {
         stage('Deploy with Helm') {
             steps {
                 script {
-                    withKubeConfig([credentialsId: 'k8s-creds', serverUrl: '']) {
+                    withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                         sh '''
+                            export KUBECONFIG=${KUBECONFIG}
                             helm upgrade --install ${HELM_RELEASE} gallerique-helm/ \
                                 --namespace ${KUBE_NAMESPACE} \
                                 --set image.repository=${DOCKER_USERNAME}/${DOCKER_IMAGE} \
